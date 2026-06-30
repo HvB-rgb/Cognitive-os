@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
-from config import get_settings
-from routers import ingress, dashboard  
+from backend.config import get_settings
+from backend.routers import ingress, dashboard  
 
 settings = get_settings()
 
