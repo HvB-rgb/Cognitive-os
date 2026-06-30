@@ -1,0 +1,6 @@
+# railway.worker.toml
+[build]
+builder = "NIXPACKS"
+
+[deploy]
+startCommand = "python -m backend.workers.telegram_worker"
