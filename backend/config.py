@@ -24,6 +24,9 @@ class Settings(BaseSettings):
     supabase_url: str | None = None
     supabase_key: str | None = None          # ← was supabase_service_key
 
+    # Backend URL — used by the Telegram worker to reach the FastAPI service
+    backend_url: str = "http://127.0.0.1:8000"
+
 
 @lru_cache
 def get_settings() -> Settings:

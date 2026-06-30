@@ -16,14 +16,14 @@ settings = get_settings()
 bot = Bot(token=settings.telegram_bot_token)
 dp = Dispatcher(storage=MemoryStorage())
 
-API_BASE = "http://127.0.0.1:8000"
+API_BASE = settings.backend_url
 
 # Session tracking — resets if the bot restarts
 authenticated_sessions: dict[str, float] = {}
 failed_attempts: dict[str, int] = {}
 SESSION_TIMEOUT = 30 * 60  # 30 minutes
 
-DASHBOARD_BASE_URL = "http://127.0.0.1:8000/dashboard"
+DASHBOARD_BASE_URL = f"{settings.backend_url}/dashboard"
 
 def is_authenticated(user_id: str) -> bool:
     ts = authenticated_sessions.get(user_id)
@@ -465,45 +465,6 @@ async def handle_unsupported(message: Message):
     )
 
 
-# ── /dashboard — Live User Telemetry Tokens Active ────────────────────────────
-@dp.message(Command("dashboard"))
-async def handle_dashboard(message: Message):
-    user_id = str(message.from_user.id)
-    user = await database.get_or_create_user(user_id)
-    if not user:
-        await message.answer("❌ Could not load your profile.")
-        return
-
-    token = await database.get_or_create_dashboard_token(user["id"])
-    if not token:
-        await message.answer("❌ Could not generate your dashboard link. Try again.")
-        return
-
-    await message.answer(
-        "🔗 *Your private dashboard token:*\n"
-        f"`{token}`\n\n"
-        "This is private — don't share it. If exposed, send /reset_link.",
-        parse_mode="Markdown"
-    )
-
-
-@dp.message(Command("reset_link"))
-async def handle_reset_link(message: Message):
-    user_id = str(message.from_user.id)
-    user = await database.get_or_create_user(user_id)
-    if not user:
-        await message.answer("❌ Could not load your profile.")
-        return
-
-    new_token = await database.reset_dashboard_token(user["id"])
-    if not new_token:
-        await message.answer("❌ Could not reset your link. Try again.")
-        return
-
-    await message.answer(
-        f"🔄 Old token invalidated.\n\nNew token:\n`{new_token}`",
-        parse_mode="Markdown"
-    )
 
 # ── Entry point ───────────────────────────────────────────────────────────────
 async def main():
