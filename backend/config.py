@@ -27,6 +27,9 @@ class Settings(BaseSettings):
     # Backend URL — used by the Telegram worker to reach the FastAPI service
     backend_url: str = "http://127.0.0.1:8000"
 
+    # Security — Fernet key for reversible encryption of stored secrets (e.g. website passwords)
+    encryption_key: str | None = None
+
 
 @lru_cache
 def get_settings() -> Settings:

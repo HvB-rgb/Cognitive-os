@@ -259,3 +259,100 @@ async def save_entry(
     except Exception as e:
         print(f"[DB] save_entry failed: {e}")
         return None
+
+
+# ── Website credentials ───────────────────────────────────────────────────────
+
+async def create_website_credential(
+    user_id: str,
+    site_name: str,
+    email: str,
+    password_encrypted: str,
+    combination: str,
+) -> dict | None:
+    if not supabase:
+        return None
+    try:
+        insert = (
+            supabase.table("website_credentials")
+            .insert({
+                "user_id": user_id,
+                "site_name": site_name,
+                "email": email,
+                "password_encrypted": password_encrypted,
+                "combination": combination,
+            })
+            .execute()
+        )
+        return insert.data[0] if insert.data else None
+    except Exception as e:
+        print(f"[DB] create_website_credential failed: {e}")
+        return None
+
+
+async def get_website_credentials(user_id: str) -> list[dict]:
+    if not supabase:
+        return []
+    try:
+        result = (
+            supabase.table("website_credentials")
+            .select("id, site_name, email, combination, created_at, updated_at")
+            .eq("user_id", user_id)
+            .order("created_at", desc=True)
+            .execute()
+        )
+        return result.data or []
+    except Exception as e:
+        print(f"[DB] get_website_credentials failed: {e}")
+        return []
+
+
+async def get_website_credential(user_id: str, credential_id: str) -> dict | None:
+    if not supabase:
+        return None
+    try:
+        result = (
+            supabase.table("website_credentials")
+            .select("*")
+            .eq("user_id", user_id)
+            .eq("id", credential_id)
+            .execute()
+        )
+        return result.data[0] if result.data else None
+    except Exception as e:
+        print(f"[DB] get_website_credential failed: {e}")
+        return None
+
+
+async def update_website_credential(user_id: str, credential_id: str, updates: dict) -> dict | None:
+    if not supabase:
+        return None
+    try:
+        result = (
+            supabase.table("website_credentials")
+            .update(updates)
+            .eq("user_id", user_id)
+            .eq("id", credential_id)
+            .execute()
+        )
+        return result.data[0] if result.data else None
+    except Exception as e:
+        print(f"[DB] update_website_credential failed: {e}")
+        return None
+
+
+async def delete_website_credential(user_id: str, credential_id: str) -> bool:
+    if not supabase:
+        return False
+    try:
+        result = (
+            supabase.table("website_credentials")
+            .delete()
+            .eq("user_id", user_id)
+            .eq("id", credential_id)
+            .execute()
+        )
+        return bool(result.data)
+    except Exception as e:
+        print(f"[DB] delete_website_credential failed: {e}")
+        return False
