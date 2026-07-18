@@ -1,5 +1,6 @@
 from pydantic import BaseModel, field_validator
 from typing import Literal, Optional
+from datetime import date
 
 class IngestTextRequest(BaseModel):
     user_id: str
@@ -27,3 +28,66 @@ class IngestResponse(BaseModel):
     result: Optional[AIProcessingResult] = None
     error: Optional[str] = None
     persisted: bool = True   # ← add this
+
+
+# ── Website Credentials ─────────────────────────────────────────────────────
+
+CombinationRule = Literal["initials", "symbol", "birthdate"]
+BirthDatePart = Literal["day", "month", "year"]
+
+
+class CombinationPreviewRequest(BaseModel):
+    rules: list[CombinationRule]
+    names: Optional[list[str]] = None
+    symbol: Optional[str] = None
+    birth_date: Optional[date] = None
+    birth_date_parts: Optional[list[BirthDatePart]] = None
+
+
+class CombinationPreviewResponse(BaseModel):
+    combination: str
+
+
+class WebsiteCredentialCreate(BaseModel):
+    site_name: str
+    email: str
+    password: str
+
+    # Either pass a pre-generated combination directly, or supply the
+    # generation inputs below and let the server build it. Raw inputs
+    # (names/symbol/birth_date) are used only to compute the string and
+    # are not persisted.
+    combination: Optional[str] = None
+    combination_rules: Optional[list[CombinationRule]] = None
+    names: Optional[list[str]] = None
+    symbol: Optional[str] = None
+    birth_date: Optional[date] = None
+    birth_date_parts: Optional[list[BirthDatePart]] = None
+
+
+class WebsiteCredentialUpdate(BaseModel):
+    site_name: Optional[str] = None
+    email: Optional[str] = None
+    password: Optional[str] = None
+
+    combination: Optional[str] = None
+    combination_rules: Optional[list[CombinationRule]] = None
+    names: Optional[list[str]] = None
+    symbol: Optional[str] = None
+    birth_date: Optional[date] = None
+    birth_date_parts: Optional[list[BirthDatePart]] = None
+
+
+class WebsiteCredentialResponse(BaseModel):
+    id: str
+    site_name: str
+    email: str
+    password_masked: str
+    combination: str
+    created_at: str
+    updated_at: str
+
+
+class WebsiteCredentialRevealResponse(BaseModel):
+    id: str
+    password: str
