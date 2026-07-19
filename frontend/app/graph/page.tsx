@@ -26,7 +26,7 @@ export default async function GraphPage() {
           </p>
         </div>
         <nav className="flex gap-4 text-sm text-muted">
-          <a href="/" className="hover:text-white transition-colors">Entries</a>
+          <a href="/dashboard" className="hover:text-white transition-colors">Entries</a>
           <a href="/insight" className="hover:text-white transition-colors">Insight</a>
           <a href="/review" className="hover:text-white transition-colors">Review</a>
         </nav>

@@ -139,7 +139,7 @@ export default async function InsightPage() {
       )}
 
       <div className="flex gap-4 mt-2 text-xs text-muted">
-        <a href="/" className="hover:text-white transition-colors">← Entries</a>
+        <a href="/dashboard" className="hover:text-white transition-colors">← Entries</a>
         <a href="/review" className="hover:text-white transition-colors">Review queue →</a>
       </div>
     </div>

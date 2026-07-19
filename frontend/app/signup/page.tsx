@@ -156,6 +156,10 @@ export default function SignupPage() {
           >
             {loading ? "Creating account…" : "Create account"}
           </button>
+
+          <p className="text-center text-xs text-muted">
+            Already have an ID? <a href="/login" className="text-accent hover:underline">Sign in</a>
+          </p>
         </form>
       </div>
 

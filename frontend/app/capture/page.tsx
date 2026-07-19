@@ -114,7 +114,7 @@ export default function CapturePage() {
           {firstName ? `Hey, ${firstName}` : "Capture"}
         </h1>
         <div className="flex gap-4 text-sm text-muted">
-          <a href="/" className="hover:text-white transition-colors">Dashboard</a>
+          <a href="/dashboard" className="hover:text-white transition-colors">Dashboard</a>
           <button onClick={logout} className="hover:text-white transition-colors">Sign out</button>
         </div>
       </div>
