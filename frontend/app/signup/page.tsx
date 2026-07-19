@@ -1,13 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? "";
 
+type Form = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  dob: string;
+};
+
 export default function SignupPage() {
   const router = useRouter();
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<Form>({
     firstName: "",
     lastName: "",
     email: "",
@@ -18,7 +26,7 @@ export default function SignupPage() {
   const [loading, setLoading] = useState(false);
   const [username, setUsername] = useState<string | null>(null);
 
-  function update(field: keyof typeof form, value: string) {
+  function update(field: keyof Form, value: string) {
     setForm((f) => ({ ...f, [field]: value }));
   }
 
@@ -59,135 +67,697 @@ export default function SignupPage() {
     }
   }
 
-  if (username) {
-    return (
-      <div className="min-h-screen flex items-center justify-center px-4">
-        <div className="w-full max-w-sm text-center">
-          <p className="text-xs uppercase tracking-widest text-muted mb-3">Account created</p>
-          <h1 className="text-2xl font-semibold mb-2">Welcome, {form.firstName}.</h1>
-          <p className="text-muted text-sm mb-6">
-            Your unique ID is{" "}
-            <span className="font-mono text-accent">{username}</span>
-          </p>
-          <button
-            onClick={() => router.push("/capture")}
-            className="w-full rounded-md bg-accent text-white text-sm font-medium py-2.5 hover:opacity-90 transition-opacity"
-          >
-            Start capturing
-          </button>
-        </div>
-      </div>
+  // Scroll-driven logo docking animation — verbatim from the design, adapted
+  // to run as a client-side effect instead of a page <script> tag.
+  useEffect(() => {
+    const heroLogo = document.getElementById("heroLogo") as HTMLImageElement | null;
+    const heroGlow = document.getElementById("heroGlow");
+    const badge = document.getElementById("powerBadge");
+    const dockSlot = document.getElementById("dockSlot");
+    const quoteBlock = document.querySelector(".quote-block");
+    if (!heroLogo || !heroGlow || !badge || !dockSlot || !quoteBlock) return;
+
+    let docked = false;
+    let quoteBlockDocTop = 0;
+
+    function measure() {
+      quoteBlockDocTop = quoteBlock!.getBoundingClientRect().top + window.scrollY;
+    }
+    measure();
+
+    function ease(t: number) {
+      if (t < 0.5) return t;
+      const u = (t - 0.5) * 2;
+      return 0.5 + u * u * 0.5;
+    }
+
+    function dock() {
+      docked = true;
+      dockSlot!.appendChild(heroLogo!);
+      heroLogo!.style.position = "static";
+      heroLogo!.style.left = "";
+      heroLogo!.style.top = "";
+      heroLogo!.style.transform = "scale(1)";
+      heroLogo!.style.opacity = "1";
+      heroLogo!.style.filter = "brightness(1.3) saturate(1.6)";
+      (heroGlow as HTMLElement).style.opacity = "0";
+    }
+
+    function undock() {
+      docked = false;
+      document.body.appendChild(heroLogo!);
+      heroLogo!.style.position = "fixed";
+      (heroGlow as HTMLElement).style.opacity = "1";
+    }
+
+    function onScroll() {
+      const max = document.body.scrollHeight - window.innerHeight;
+      const p = Math.max(0, Math.min(1, window.scrollY / max));
+      const travelStart = quoteBlockDocTop - window.innerHeight * 1.1;
+      const travelEnd = quoteBlockDocTop - window.innerHeight * 0.35;
+      const t2 = Math.max(0, Math.min(1, (window.scrollY - travelStart) / (travelEnd - travelStart)));
+
+      if (t2 >= 1 && !docked) dock();
+      if (t2 < 1 && docked) undock();
+
+      if (!docked) {
+        const rect = dockSlot!.getBoundingClientRect();
+        const e = ease(t2);
+        const curLeft = 106 + (rect.left - 106) * e;
+        const curTop = 484 + (rect.top - 484) * e;
+        heroLogo!.style.left = curLeft + "px";
+        heroLogo!.style.top = curTop + "px";
+        const idleScale = 0.75 + p * 0.25;
+        heroLogo!.style.transform = `scale(${idleScale + (1 - idleScale) * e})`;
+        heroLogo!.style.filter = `brightness(${0.55 + p * 0.85 + e * 0.4}) saturate(${0.4 + p * 1.6 + e * 0.6})`;
+        heroLogo!.style.opacity = String((0.55 + p * 0.45) * (1 - e) + e);
+        (heroGlow as HTMLElement).style.left = curLeft - (26 - 22.5) + "px";
+        (heroGlow as HTMLElement).style.top = curTop - (26 - 19.5) + "px";
+        (heroGlow as HTMLElement).style.transform = `scale(${(1 + p * 1.1) * (1 - e)})`;
+        (heroGlow as HTMLElement).style.background = `radial-gradient(circle, rgba(47,111,237,${p * 0.6 * (1 - e)}) 0%, rgba(47,111,237,${p * 0.12 * (1 - e)}) 40%, rgba(47,111,237,0) 60%)`;
+        (heroGlow as HTMLElement).style.opacity = String(1 - e);
+      }
+      (badge as HTMLElement).style.boxShadow = `0 0 ${p * 46}px ${p * 10}px rgba(47,111,237,${p * 0.9})`;
+      (badge as HTMLElement).style.transform = `scale(${1 + p * 0.35}) rotate(${p * 20}deg)`;
+      const badgeImg = badge!.querySelector("img") as HTMLElement | null;
+      if (badgeImg) badgeImg.style.filter = `brightness(${1 + p * 0.5}) saturate(${1 + p * 0.6})`;
+    }
+
+    window.addEventListener("resize", measure);
+    window.addEventListener("scroll", onScroll);
+    onScroll();
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) entry.target.classList.add("visible");
+        });
+      },
+      { threshold: 0.15 }
     );
-  }
+    document.querySelectorAll(".copy,.feature,.quote-inner").forEach((el) => io.observe(el));
+
+    return () => {
+      window.removeEventListener("resize", measure);
+      window.removeEventListener("scroll", onScroll);
+      io.disconnect();
+    };
+  }, []);
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-sm">
-        <div className="mb-8">
-          <h1 className="text-2xl font-semibold tracking-tight mb-1">Create your account</h1>
-          <p className="text-muted text-sm">Your personal knowledge layer</p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div className="grid grid-cols-2 gap-3">
-            <Field label="First name">
-              <input
-                required
-                value={form.firstName}
-                onChange={(e) => update("firstName", e.target.value)}
-                className="input"
-                placeholder="Harsh Vardhan"
-              />
-            </Field>
-            <Field label="Last name">
-              <input
-                required
-                value={form.lastName}
-                onChange={(e) => update("lastName", e.target.value)}
-                className="input"
-                placeholder="Bagri"
-              />
-            </Field>
-          </div>
-
-          <Field label="Email">
-            <input
-              required
-              type="email"
-              value={form.email}
-              onChange={(e) => update("email", e.target.value)}
-              className="input"
-              placeholder="you@example.com"
-            />
-          </Field>
-
-          <Field label="Password">
-            <input
-              required
-              type="password"
-              minLength={8}
-              value={form.password}
-              onChange={(e) => update("password", e.target.value)}
-              className="input"
-              placeholder="At least 8 characters"
-            />
-          </Field>
-
-          <Field label="Date of birth">
-            <input
-              required
-              type="date"
-              value={form.dob}
-              onChange={(e) => update("dob", e.target.value)}
-              className="input"
-            />
-          </Field>
-
-          {error && (
-            <p className="text-sm text-red-400 bg-red-950/30 border border-red-900/50 rounded-md px-3 py-2">
-              {error}
-            </p>
-          )}
-
+    <>
+      <div className="topbar">
+        <img className="logo" src="/logo.png" alt="Cognitive OS" />
+        <div className="navbtns">
           <button
-            type="submit"
-            disabled={loading}
-            className="mt-2 w-full rounded-md bg-accent text-white text-sm font-medium py-2.5 hover:opacity-90 transition-opacity disabled:opacity-50"
+            className="btn"
+            style={{ background: "#fff", border: "1px solid #dcdce1", color: "#26262b" }}
+            onClick={() => router.push("/login")}
           >
-            {loading ? "Creating account…" : "Create account"}
+            Log In
           </button>
-
-          <p className="text-center text-xs text-muted">
-            Already have an ID? <a href="/login" className="text-accent hover:underline">Sign in</a>
-          </p>
-        </form>
+          <button
+            className="btn"
+            style={{ background: "#26262b", color: "#fff" }}
+            onClick={() => document.getElementById("signup")?.scrollIntoView({ behavior: "smooth" })}
+          >
+            Get started
+          </button>
+          <span className="hamb">☰</span>
+        </div>
       </div>
 
-      <style jsx global>{`
-        .input {
-          background: #1a1a1a;
-          border: 1px solid #2a2a2a;
-          border-radius: 6px;
-          padding: 8px 12px;
-          font-size: 14px;
-          color: #e5e5e5;
-          width: 100%;
-          outline: none;
-          transition: border-color 0.15s;
+      <div className="hero">
+        <h1 className="h1">
+          A second brain that thinks
+          <br />
+          for you a little, so you can
+          <br />
+          <span>think better yourself.</span>
+        </h1>
+        <p className="hero-sub">
+          Send it whatever crosses your mind or your feed - a link, a video, a reel, a voice note, a
+          stray 2am thought - and it reads it, watches it, listens to it, and quietly files away what
+          actually mattered.
+        </p>
+        <div className="cta-row">
+          <button
+            className="btn cta-primary"
+            onClick={() => document.getElementById("signup")?.scrollIntoView({ behavior: "smooth" })}
+          >
+            Get started
+          </button>
+          <button
+            className="btn cta-ghost"
+            onClick={() => document.getElementById("what-it-is")?.scrollIntoView({ behavior: "smooth" })}
+          >
+            See how it works
+          </button>
+        </div>
+      </div>
+
+      <section className="copy" id="what-it-is">
+        <p className="eyebrow">What it is</p>
+        <h2>No folders. No tags. No &quot;I&apos;ll organize this later.&quot;</h2>
+        <p>
+          Cognitive OS is a second brain that thinks for you a little, so you can think better
+          yourself. You send it whatever crosses your mind or your feed - a link, a video, an
+          Instagram reel, a voice note, a stray 2am thought - and it reads it, watches it, listens to
+          it, and quietly files away what actually mattered.
+        </p>
+      </section>
+
+      <section className="copy">
+        <p className="eyebrow">The problem it solves</p>
+        <h2>Most of what you consume in a day disappears</h2>
+        <p>
+          You save an article and never open it again. You watch a reel that genuinely changes how
+          you think about something, and by the next morning you couldn&apos;t repeat the idea if
+          asked. You have a voice memo from three weeks ago you&apos;re pretty sure was important.
+          Modern life produces more insight per day than any person can retain.
+        </p>
+        <p className="pullquote">The bottleneck was never finding good ideas - it&apos;s keeping them.</p>
+        <p>
+          Note apps don&apos;t fix this because they demand exactly the discipline you don&apos;t have
+          time for: naming things, filing things, reviewing things. The friction of &quot;doing it
+          properly&quot; is why the note never gets taken at all.
+        </p>
+      </section>
+
+      <div className="features">
+        <p className="eyebrow" style={{ paddingLeft: 0 }}>
+          What it actually does for you
+        </p>
+        <div className="feature">
+          <span className="fnum">01</span>
+          <div className="fbody">
+            <b>Catches everything, effortlessly.</b>
+            <span>
+              A link, a thought, a voice note, a video - you just send it, in whatever form it
+              naturally arrives in. No formatting, no categorizing.
+            </span>
+          </div>
+        </div>
+        <div className="feature">
+          <span className="fnum">02</span>
+          <div className="fbody">
+            <b>Understands it for you.</b>
+            <span>
+              It reads the article, watches the reel, transcribes the voice note - and pulls out the
+              actual idea, not just the raw content.
+            </span>
+          </div>
+        </div>
+        <div className="feature">
+          <span className="fnum">03</span>
+          <div className="fbody">
+            <b>Organizes itself.</b>
+            <span>
+              Everything lands in the right place automatically, based on what it&apos;s actually
+              about - not what folder you remembered to click.
+            </span>
+          </div>
+        </div>
+        <div className="feature">
+          <span className="fnum">04</span>
+          <div className="fbody">
+            <b>Remembers before you forget.</b>
+            <span>
+              It resurfaces what you saved right at the point your brain would naturally start to
+              lose it - the same principle behind how memory actually sticks.
+            </span>
+          </div>
+        </div>
+        <div className="feature">
+          <span className="fnum">05</span>
+          <div className="fbody">
+            <b>Shows you your own mind.</b>
+            <span>
+              Over time, it notices things you didn&apos;t consciously plan - that two unrelated
+              interests keep circling the same idea, or that a whole week was unusually focused or
+              scattered.
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <section className="copy">
+        <p className="eyebrow">Who it&apos;s for</p>
+        <h2>Anyone whose curiosity outpaces their filing system</h2>
+        <p>
+          Which is most curious people. It&apos;s for the person with forty saved links, a voice
+          memos app they&apos;re afraid to open, and a real, honest sense that they&apos;re learning
+          constantly but retaining very little of it.
+        </p>
+      </section>
+
+      <div className="quote-block">
+        <div className="quote-inner">
+          <div className="dock-row" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 10 }}>
+            <span id="dockSlot" style={{ width: 45, height: 39, display: "inline-block", flexShrink: 0 }} />
+            <p className="eyebrow" style={{ margin: 0 }}>
+              The core idea, in one line
+            </p>
+          </div>
+          <p>
+            You shouldn&apos;t have to work to remember your own best thinking. Cognitive OS is the
+            difference between information passing through you and actually becoming part of how you
+            think.
+          </p>
+        </div>
+      </div>
+
+      <div className="signup-wrap" id="signup">
+        <div className="card">
+          {username ? (
+            <>
+              <h1>Welcome, {form.firstName}.</h1>
+              <p className="sub">
+                Your unique ID is <span style={{ color: "#2f6fed", fontFamily: "monospace" }}>{username}</span>
+              </p>
+              <button className="btn card-cta" onClick={() => router.push("/capture")}>
+                Start capturing
+              </button>
+            </>
+          ) : (
+            <form onSubmit={handleSubmit}>
+              <h1>Create your account</h1>
+              <p className="sub">Your personal knowledge layer</p>
+              <div className="row2">
+                <label>
+                  First name
+                  <input
+                    required
+                    value={form.firstName}
+                    onChange={(e) => update("firstName", e.target.value)}
+                    placeholder="Harsh Vardhan"
+                  />
+                </label>
+                <label>
+                  Last name
+                  <input
+                    required
+                    value={form.lastName}
+                    onChange={(e) => update("lastName", e.target.value)}
+                    placeholder="Bagri"
+                  />
+                </label>
+              </div>
+              <label>
+                Email
+                <input
+                  required
+                  type="email"
+                  value={form.email}
+                  onChange={(e) => update("email", e.target.value)}
+                  placeholder="you@example.com"
+                />
+              </label>
+              <label>
+                Password
+                <input
+                  required
+                  type="password"
+                  minLength={8}
+                  value={form.password}
+                  onChange={(e) => update("password", e.target.value)}
+                  placeholder="At least 8 characters"
+                />
+              </label>
+              <label>
+                Date of birth
+                <input
+                  required
+                  type="date"
+                  value={form.dob}
+                  onChange={(e) => update("dob", e.target.value)}
+                />
+              </label>
+
+              {error && (
+                <p style={{ color: "#e5484d", fontSize: 13, margin: "0 0 14px" }}>{error}</p>
+              )}
+
+              <button className="btn card-cta" type="submit" disabled={loading}>
+                {loading ? "Creating account…" : "Create account"}
+              </button>
+              <p className="foot">
+                Already have an ID?{" "}
+                <a onClick={() => router.push("/login")}>Sign in</a>
+              </p>
+            </form>
+          )}
+        </div>
+      </div>
+
+      <div
+        id="heroGlow"
+        style={{
+          position: "fixed",
+          left: 104.5,
+          top: 479.5,
+          width: 48,
+          height: 48,
+          borderRadius: "50%",
+          pointerEvents: "none",
+          zIndex: 5,
+          transform: "scale(1)",
+          transition: "transform .15s ease-out,background .15s ease-out,opacity .2s ease-out",
+        }}
+      />
+      <img
+        className="hero-logo"
+        id="heroLogo"
+        src="/logo.png"
+        alt=""
+        style={{
+          position: "fixed",
+          left: 106,
+          top: 484,
+          zIndex: 6,
+          transformOrigin: "center center",
+          transition: "filter .15s ease-out,opacity .2s ease-out,transform .15s ease-out",
+        }}
+      />
+      <div className="power-badge" id="powerBadge">
+        <img src="/logo.png" alt="" />
+      </div>
+
+      <style jsx>{`
+        * {
+          box-sizing: border-box;
         }
-        .input:focus {
-          border-color: #7c6af7;
+        :global(html) {
+          scroll-behavior: smooth;
+        }
+        /* !important needed: layout.tsx sets bg-surface/text-white via a
+           Tailwind class on <body>, which outranks a plain element selector */
+        :global(body) {
+          margin: 0;
+          font-family: "Inter", system-ui, sans-serif;
+          background: #ececed !important;
+          color: #1c1c20 !important;
+        }
+        .topbar {
+          position: sticky;
+          top: 16px;
+          z-index: 50;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 8px 8px 8px 18px;
+          border-radius: 999px;
+          margin: 16px auto 0;
+          width: min(900px, 90vw);
+          background: #fff;
+          border: 1px solid #dcdce1;
+          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+        }
+        .logo {
+          width: 30px;
+          height: 30px;
+          object-fit: contain;
+        }
+        .navbtns {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+        .btn {
+          border-radius: 999px;
+          padding: 9px 18px;
+          font-size: 14px;
+          font-weight: 600;
+          border: none;
+          cursor: pointer;
+          font-family: inherit;
+        }
+        .hamb {
+          width: 34px;
+          height: 34px;
+          border-radius: 50%;
+          border: 1px solid #dcdce1;
+          color: #26262b;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 16px;
+        }
+        .hero {
+          max-width: 720px;
+          margin: 0 auto;
+          padding: 100px 24px 60px;
+          text-align: center;
+        }
+        :global(.hero-logo) {
+          width: 45px;
+          height: 39px;
+          object-fit: contain;
+          margin: 0 auto 32px;
+          filter: brightness(0.55) saturate(0.4);
+          opacity: 0.55;
+          transition: filter 0.15s ease-out, opacity 0.15s ease-out, transform 0.15s ease-out;
+        }
+        .h1 {
+          font-size: 44px;
+          line-height: 1.15;
+          font-weight: 600;
+          letter-spacing: -0.01em;
+          margin: 0 0 18px;
+        }
+        .h1 span {
+          color: #2f6fed;
+        }
+        .hero-sub {
+          font-size: 17px;
+          color: #5b5b63;
+          line-height: 1.6;
+          max-width: 560px;
+          margin: 0 auto 32px;
+        }
+        .cta-row {
+          display: flex;
+          gap: 12px;
+          justify-content: center;
+        }
+        .cta-primary {
+          background: #2f6fed;
+          color: #fff;
+          padding: 13px 26px;
+          font-size: 15px;
+        }
+        .cta-ghost {
+          background: #fff;
+          color: #26262b;
+          border: 1px solid #dcdce1;
+          padding: 13px 26px;
+          font-size: 15px;
+        }
+        :global(section.copy) {
+          max-width: 640px;
+          margin: 0 auto;
+          padding: 64px 24px;
+          opacity: 0;
+          transform: translateY(24px);
+          transition: opacity 0.7s ease, transform 0.7s ease;
+        }
+        :global(section.copy.visible) {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        .eyebrow {
+          font-size: 11px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.1em;
+          color: #2f6fed;
+          margin: 0 0 10px;
+        }
+        :global(.copy h2) {
+          font-size: 28px;
+          font-weight: 600;
+          letter-spacing: -0.01em;
+          margin: 0 0 18px;
+        }
+        :global(.copy p) {
+          font-size: 16px;
+          line-height: 1.7;
+          color: #4b4b52;
+          margin: 0 0 16px;
+        }
+        :global(.pullquote) {
+          font-size: 20px;
+          font-weight: 500;
+          line-height: 1.5;
+          color: #1c1c20;
+          border-left: 3px solid #2f6fed;
+          padding-left: 20px;
+          margin: 24px 0;
+        }
+        .features {
+          max-width: 800px;
+          margin: 0 auto;
+          padding: 64px 24px;
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+        :global(.feature) {
+          display: flex;
+          gap: 20px;
+          padding: 22px 0;
+          border-top: 1px solid #dcdce1;
+          opacity: 0;
+          transform: translateY(16px);
+          transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        :global(.feature.visible) {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        :global(.feature:last-child) {
+          border-bottom: 1px solid #dcdce1;
+        }
+        .fnum {
+          font-family: "JetBrains Mono", monospace;
+          font-size: 13px;
+          color: #2f6fed;
+          flex-shrink: 0;
+          width: 28px;
+          padding-top: 2px;
+        }
+        .fbody b {
+          display: block;
+          font-size: 16px;
+          margin-bottom: 4px;
+        }
+        .fbody span {
+          font-size: 14px;
+          color: #5b5b63;
+          line-height: 1.6;
+        }
+        .quote-block {
+          background: #1c1c20;
+          color: #f2f2f3;
+          padding: 100px 24px;
+          text-align: center;
+        }
+        :global(.quote-inner) {
+          max-width: 640px;
+          margin: 0 auto;
+          opacity: 0;
+          transform: translateY(24px);
+          transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        :global(.quote-inner.visible) {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        .quote-inner :global(.eyebrow) {
+          color: #7fa8f7;
+        }
+        .quote-inner p {
+          font-size: 26px;
+          line-height: 1.5;
+          font-weight: 500;
+          letter-spacing: -0.005em;
+          margin: 0;
+        }
+        .signup-wrap {
+          padding: 80px 24px 100px;
+          display: flex;
+          justify-content: center;
+        }
+        .card {
+          width: 400px;
+          background: #ffffff;
+          border: 1px solid #dcdce1;
+          border-radius: 16px;
+          padding: 36px 36px 32px;
+          box-shadow: 0 12px 32px rgba(20, 20, 25, 0.08);
+        }
+        .card h1 {
+          font-size: 24px;
+          font-weight: 600;
+          letter-spacing: -0.01em;
+          margin: 0 0 4px;
+        }
+        .card .sub {
+          font-size: 14px;
+          color: #7a7a82;
+          margin: 0 0 24px;
+        }
+        .row2 {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 12px;
+          margin-bottom: 14px;
+        }
+        label {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+          font-size: 12px;
+          color: #7a7a82;
+          margin-bottom: 14px;
+        }
+        input {
+          width: 100%;
+          background: #f4f4f6;
+          border: 1px solid #dcdce1;
+          border-radius: 8px;
+          padding: 10px 12px;
+          font-size: 14px;
+          color: #1c1c20;
+          outline: none;
+          font-family: inherit;
+        }
+        input:focus {
+          border-color: #2f6fed;
+        }
+        .card-cta {
+          width: 100%;
+          background: #2f6fed;
+          color: #fff;
+          padding: 12px;
+          font-size: 14px;
+          margin-top: 6px;
+        }
+        .card-cta:disabled {
+          opacity: 0.6;
+          cursor: default;
+        }
+        .foot {
+          text-align: center;
+          font-size: 12px;
+          color: #7a7a82;
+          margin-top: 16px;
+        }
+        .foot a {
+          color: #2f6fed;
+          cursor: pointer;
+        }
+        .power-badge {
+          position: fixed;
+          right: 28px;
+          bottom: 28px;
+          width: 60px;
+          height: 60px;
+          border-radius: 50%;
+          background: #fff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 60;
+          transition: transform 0.1s linear;
+        }
+        .power-badge img {
+          width: 60%;
+          height: 60%;
+          object-fit: contain;
+          transition: filter 0.1s linear;
         }
       `}</style>
-    </div>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <label className="flex flex-col gap-1.5">
-      <span className="text-xs text-muted">{label}</span>
-      {children}
-    </label>
+    </>
   );
 }
