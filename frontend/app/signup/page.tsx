@@ -48,6 +48,9 @@ export default function SignupPage() {
       }
 
       localStorage.setItem("dashboard_token", data.dashboard_token);
+      localStorage.setItem("user_id", data.id);
+      localStorage.setItem("username", data.username);
+      localStorage.setItem("first_name", form.firstName);
       setUsername(data.username);
     } catch {
       setError("Couldn't reach the server. Is the backend running?");
@@ -67,10 +70,10 @@ export default function SignupPage() {
             <span className="font-mono text-accent">{username}</span>
           </p>
           <button
-            onClick={() => router.push("/")}
+            onClick={() => router.push("/capture")}
             className="w-full rounded-md bg-accent text-white text-sm font-medium py-2.5 hover:opacity-90 transition-opacity"
           >
-            Go to dashboard
+            Start capturing
           </button>
         </div>
       </div>

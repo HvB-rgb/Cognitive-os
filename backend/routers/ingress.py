@@ -22,7 +22,7 @@ async def process_text(
         #db_user_id = user["id"] if user else None
         db_user_id = None
         try:
-            user = await database.get_or_create_user(payload.user_id)
+            user = await database.resolve_user(payload.user_id)
             db_user_id = user["id"] if user else None
         except Exception as db_err:
             print(f"🚨🚨🚨 [DEGRADED MODE] Database unreachable — entries NOT being saved! {db_err}")
@@ -98,7 +98,7 @@ async def process_voice(
     try:
         from backend.services.transcriber import transcribe_audio
 
-        user = await database.get_or_create_user(user_id)
+        user = await database.resolve_user(user_id)
         db_user_id = user["id"] if user else None
 
         transcript = await transcribe_audio(audio_bytes)

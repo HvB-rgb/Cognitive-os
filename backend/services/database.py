@@ -66,6 +66,32 @@ async def get_or_create_user(telegram_id: str) -> dict | None:
         return None
 
 
+async def resolve_user(user_id_or_telegram_id: str) -> dict | None:
+    """
+    Ingestion endpoints are shared between the Telegram bot (sends a
+    numeric telegram_id, looked up/created via phone_number) and the web
+    frontend (sends an existing internal UUID from login — must never be
+    treated as a phone_number, or it'd insert a broken duplicate user).
+    """
+    if not supabase:
+        return None
+    try:
+        uuid.UUID(user_id_or_telegram_id)
+        is_internal_id = True
+    except ValueError:
+        is_internal_id = False
+
+    if is_internal_id:
+        try:
+            result = supabase.table("users").select("*").eq("id", user_id_or_telegram_id).execute()
+            return result.data[0] if result.data else None
+        except Exception as e:
+            print(f"[DB] resolve_user (by id) failed: {e}")
+            return None
+
+    return await get_or_create_user(user_id_or_telegram_id)
+
+
 async def get_user_buckets(user_id: str) -> list[str]:
     """
     Returns list of bucket names for this user.

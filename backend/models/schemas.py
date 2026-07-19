@@ -123,3 +123,14 @@ class SignupResponse(BaseModel):
     username: str
     email: str
     dashboard_token: str
+
+
+class LoginRequest(BaseModel):
+    username: str
+
+
+class LoginResponse(BaseModel):
+    id: str
+    username: str
+    first_name: str
+    dashboard_token: str
