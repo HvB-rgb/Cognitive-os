@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from backend.config import get_settings
-from backend.routers import ingress, dashboard, credentials
+from backend.routers import ingress, dashboard, credentials, auth
 
 settings = get_settings()
 
@@ -20,6 +20,7 @@ app = FastAPI(
 app.include_router(ingress.router)
 app.include_router(dashboard.router)
 app.include_router(credentials.router)
+app.include_router(auth.router)
 
 @app.get("/health")
 async def health() -> dict[str, str]:

@@ -91,3 +91,35 @@ class WebsiteCredentialResponse(BaseModel):
 class WebsiteCredentialRevealResponse(BaseModel):
     id: str
     password: str
+
+
+# ── Email/password signup ────────────────────────────────────────────────────
+
+class SignupRequest(BaseModel):
+    email: str
+    password: str
+    first_name: str
+    last_name: str
+    dob: date
+
+    @field_validator("password")
+    @classmethod
+    def password_min_length(cls, v: str) -> str:
+        if len(v) < 8:
+            raise ValueError("Password must be at least 8 characters.")
+        return v
+
+    @field_validator("email")
+    @classmethod
+    def email_not_empty(cls, v: str) -> str:
+        v = v.strip().lower()
+        if "@" not in v:
+            raise ValueError("Enter a valid email address.")
+        return v
+
+
+class SignupResponse(BaseModel):
+    id: str
+    username: str
+    email: str
+    dashboard_token: str
