@@ -71,11 +71,12 @@ export default function SignupPage() {
   // to run as a client-side effect instead of a page <script> tag.
   useEffect(() => {
     const heroLogo = document.getElementById("heroLogo") as HTMLImageElement | null;
+    const dockedLogo = document.getElementById("dockedLogo") as HTMLImageElement | null;
     const heroGlow = document.getElementById("heroGlow");
     const badge = document.getElementById("powerBadge");
     const dockSlot = document.getElementById("dockSlot");
     const quoteBlock = document.querySelector(".quote-block");
-    if (!heroLogo || !heroGlow || !badge || !dockSlot || !quoteBlock) return;
+    if (!heroLogo || !dockedLogo || !heroGlow || !badge || !dockSlot || !quoteBlock) return;
 
     let docked = false;
     let quoteBlockDocTop = 0;
@@ -91,22 +92,23 @@ export default function SignupPage() {
       return 0.5 + u * u * 0.5;
     }
 
+    // Docking is a crossfade between two separate <img> elements (one fixed,
+    // one permanently inside dockSlot) rather than moving a single DOM node
+    // between parents. Re-parenting a React-rendered node outside its own
+    // subtree (as the original design's script did via appendChild) leaves
+    // React's fiber tree out of sync with the real DOM — the next unmount
+    // (e.g. navigating away) throws trying to remove a child that's no
+    // longer where React expects it.
     function dock() {
       docked = true;
-      dockSlot!.appendChild(heroLogo!);
-      heroLogo!.style.position = "static";
-      heroLogo!.style.left = "";
-      heroLogo!.style.top = "";
-      heroLogo!.style.transform = "scale(1)";
-      heroLogo!.style.opacity = "1";
-      heroLogo!.style.filter = "brightness(1.3) saturate(1.6)";
+      heroLogo!.style.opacity = "0";
+      dockedLogo!.style.opacity = "1";
       (heroGlow as HTMLElement).style.opacity = "0";
     }
 
     function undock() {
       docked = false;
-      document.body.appendChild(heroLogo!);
-      heroLogo!.style.position = "fixed";
+      dockedLogo!.style.opacity = "0";
       (heroGlow as HTMLElement).style.opacity = "1";
     }
 
@@ -314,7 +316,21 @@ export default function SignupPage() {
       <div className="quote-block">
         <div className="quote-inner">
           <div className="dock-row" style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginBottom: 10 }}>
-            <span id="dockSlot" style={{ width: 45, height: 39, display: "inline-block", flexShrink: 0 }} />
+            <span id="dockSlot" style={{ width: 45, height: 39, display: "inline-block", flexShrink: 0, position: "relative" }}>
+              <img
+                id="dockedLogo"
+                src="/logo.png"
+                alt=""
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "contain",
+                  opacity: 0,
+                  filter: "brightness(1.3) saturate(1.6)",
+                  transition: "opacity .15s ease-out",
+                }}
+              />
+            </span>
             <p className="eyebrow" style={{ margin: 0 }}>
               The core idea, in one line
             </p>
