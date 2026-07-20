@@ -1,96 +1,307 @@
-import { getBuckets, getEntries, type CognitiveEntry, type Bucket } from "@/lib/supabase";
-import EntryFeed from "@/components/EntryFeed";
+import { Fragment } from "react";
+import { getEntries } from "@/lib/supabase";
+import {
+  getWeeklyScore,
+  getSpacedRepetitionEntries,
+  getLatestDailyPattern,
+  getWeekActivity,
+} from "@/lib/analyser";
+import Greeting from "@/components/Greeting";
+import styles from "./dashboard.module.css";
 
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
-export default async function DashboardPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ bucket?: string }>;
-}) {
-  const { bucket } = await searchParams;
+const DAY_LABELS = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
 
-  let entries: CognitiveEntry[] = [];
-  let buckets: Bucket[] = [];
+/** cognitive_entries.created_at -> 0=Mon..6=Sun (JS Date.getDay() is 0=Sun) */
+function dayIndex(dateStr: string): number {
+  return (new Date(dateStr).getDay() + 6) % 7;
+}
+
+function heatColor(count: number): string {
+  if (count === 0) return "#eef3fe";
+  if (count === 1) return "#bcd4fb";
+  if (count <= 3) return "#5f92f4";
+  return "#1c4ed8";
+}
+
+export default async function DashboardPage() {
   let error: string | null = null;
+  let entries: Awaited<ReturnType<typeof getEntries>> = [];
+  let score: Awaited<ReturnType<typeof getWeeklyScore>> | null = null;
+  let dueEntries: Awaited<ReturnType<typeof getSpacedRepetitionEntries>> = [];
+  let pattern: Awaited<ReturnType<typeof getLatestDailyPattern>> = null;
+  let weekActivity: Awaited<ReturnType<typeof getWeekActivity>> = [];
 
   try {
-    [entries, buckets] = await Promise.all([getEntries(bucket), getBuckets()]);
+    [entries, score, dueEntries, pattern, weekActivity] = await Promise.all([
+      getEntries(),
+      getWeeklyScore(),
+      getSpacedRepetitionEntries(),
+      getLatestDailyPattern(),
+      getWeekActivity(),
+    ]);
   } catch (e) {
-    error = e instanceof Error ? e.message : "Failed to load data";
+    error = e instanceof Error ? e.message : "Failed to load dashboard data";
   }
 
-  const totalEntries = buckets.reduce((sum, b) => sum + (b.entry_count ?? 0), 0);
+  const totalEntries = entries.length;
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const todayCount = entries.filter((e) => e.created_at.slice(0, 10) === todayStr).length;
+  const recentEntries = entries.slice(0, 4);
+
+  // Active buckets this week — real counts from getWeekActivity(), not the
+  // all-time bucket.entry_count used elsewhere in the app.
+  const weekBucketCounts = new Map<string, number>();
+  for (const e of weekActivity) {
+    if (!e.bucket) continue;
+    weekBucketCounts.set(e.bucket, (weekBucketCounts.get(e.bucket) ?? 0) + 1);
+  }
+  const topWeekBuckets = Array.from(weekBucketCounts.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 4);
+
+  // Capture activity heatmap: same top-this-week buckets, per weekday count.
+  const heatCounts = new Map<string, number[]>();
+  for (const [bucket] of topWeekBuckets) heatCounts.set(bucket, [0, 0, 0, 0, 0, 0, 0]);
+  for (const e of weekActivity) {
+    const row = heatCounts.get(e.bucket);
+    if (!row) continue;
+    row[dayIndex(e.created_at)]++;
+  }
+
+  // Actionability dot-chart: avg actionability_score per weekday (roughly
+  // 0.1-0.9 per ai_engine.py's scale) mapped onto 6 dots.
+  const dayScores: number[][] = [[], [], [], [], [], [], []];
+  for (const e of weekActivity) {
+    dayScores[dayIndex(e.created_at)].push(e.actionability_score ?? 0);
+  }
+  const dayLitCounts = dayScores.map((scores) => {
+    if (!scores.length) return 0;
+    const avg = scores.reduce((a, b) => a + b, 0) / scores.length;
+    return Math.max(0, Math.min(6, Math.round(avg * 6)));
+  });
+
+  const byInterval: Record<number, number> = { 7: 0, 14: 0, 30: 0 };
+  for (const e of dueEntries) byInterval[e.intervalDays] = (byInterval[e.intervalDays] ?? 0) + 1;
+
+  const contradictionCount = (pattern?.contradiction_data as unknown[] | null)?.length ?? 0;
+
+  // getWeeklyScore()'s breadth/depth/consistency/reflection are each capped
+  // at 25 (they sum to the /100 total) — scaled by 4 here so each row reads
+  // as its own /100, matching this design's per-dimension score bars.
+  const scoreDims = score
+    ? [
+        { name: "Consistency", value: Math.round(score.consistency * 4) },
+        { name: "Breadth", value: Math.round(score.breadth * 4) },
+        { name: "Depth", value: Math.round(score.depth * 4) },
+        { name: "Reflection", value: Math.round(score.reflection * 4) },
+      ]
+    : [];
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-10">
-      {/* Header */}
-      <div className="mb-10">
-        <div className="flex items-center justify-between mb-1">
-          <div className="flex items-baseline gap-3">
-            <h1 className="text-2xl font-semibold tracking-tight">Cognitive OS</h1>
-            <span className="text-sm text-muted font-mono">{totalEntries} entries</span>
-          </div>
-          <nav className="flex gap-4 text-sm text-muted">
-            <a href="/capture" className="hover:text-white transition-colors">Capture</a>
-            <a href="/graph" className="hover:text-white transition-colors">Graph</a>
-            <a href="/insight" className="hover:text-white transition-colors">Insight</a>
-            <a href="/review" className="hover:text-white transition-colors">Review</a>
-          </nav>
+    <div className={styles.page}>
+    <div className={styles.wrap}>
+      <div className={styles.topbar}>
+        <span className={styles.word}>COGNITIVE OS</span>
+        <div className={styles.search}>Search entries…</div>
+        <div className={styles.navpills}>
+          <a href="/capture">Capture</a>
+          <span className={styles.active}>Dashboard</span>
+          <a href="/graph">Graph</a>
+          <a href="/review">Review</a>
         </div>
-        <p className="text-muted text-sm">Your personal knowledge layer</p>
       </div>
 
       {error ? (
-        <div className="rounded-lg border border-red-900/50 bg-red-950/20 px-4 py-3 text-sm text-red-400">
-          {error}
-        </div>
+        <div className={styles.errbox}>{error}</div>
       ) : (
-        <div className="flex gap-8">
-          {/* Sidebar — Buckets */}
-          <aside className="w-44 shrink-0">
-            <p className="text-xs font-medium text-muted uppercase tracking-widest mb-3">Buckets</p>
-            <nav className="flex flex-col gap-1">
-              <a
-                href="/dashboard"
-                className={`flex items-center justify-between rounded-md px-3 py-2 text-sm transition-colors ${
-                  !bucket
-                    ? "bg-accent/15 text-accent font-medium"
-                    : "text-muted hover:text-white hover:bg-card"
-                }`}
-              >
-                <span>All</span>
-                <span className="text-xs font-mono">{totalEntries}</span>
-              </a>
-              {buckets.map((b) => (
-                <a
-                  key={b.id}
-                  href={`/dashboard?bucket=${encodeURIComponent(b.name)}`}
-                  className={`flex items-center justify-between rounded-md px-3 py-2 text-sm transition-colors ${
-                    bucket === b.name
-                      ? "bg-accent/15 text-accent font-medium"
-                      : "text-muted hover:text-white hover:bg-card"
-                  }`}
-                >
-                  <span className="truncate">{b.name}</span>
-                  <span className="text-xs font-mono shrink-0 ml-2">{b.entry_count}</span>
-                </a>
-              ))}
-            </nav>
-          </aside>
-
-          {/* Entry Feed */}
-          <main className="flex-1 min-w-0">
-            {entries.length === 0 ? (
-              <div className="text-center py-20 text-muted text-sm">
-                No entries{bucket ? ` in ${bucket}` : ""} yet.
+        <>
+          <div className={styles.hrow}>
+            <div>
+              <h1 className={styles.h1}>Your Knowledge Overview</h1>
+              <p className={styles.sub}>
+                <Greeting />
+                You have {dueEntries.length} {dueEntries.length === 1 ? "entry" : "entries"} due for
+                review.
+              </p>
+            </div>
+            <div className={styles.chips}>
+              <div className={styles.chip}>
+                <b>{dueEntries.length}</b>Due for review
               </div>
-            ) : (
-              <EntryFeed entries={entries} />
-            )}
-          </main>
-        </div>
+              <div className={styles.chip}>
+                <b>{contradictionCount}</b>Contradictions
+              </div>
+              <div className={`${styles.chip} ${styles.today}`}>Today ▾</div>
+            </div>
+          </div>
+
+          <div className={styles.grid}>
+            <div className={`${styles.cell} ${styles.dark}`}>
+              <div className={styles.lbl}>Quick Access</div>
+              <div className={styles.linklist}>
+                <a href="/capture">
+                  <b>[+]</b>New capture
+                </a>
+                <a href="#recent">
+                  <b>[↗]</b>All entries
+                </a>
+                <a href="/graph">
+                  <b>[↗]</b>Knowledge graph
+                </a>
+                <a>
+                  <b>[↗]</b>Weekly digest
+                </a>
+              </div>
+            </div>
+
+            <div className={styles.cell} id="recent">
+              <div className={styles.lbl}>
+                Recent Entries<span>{totalEntries} total</span>
+              </div>
+              <div className={styles.bignum}>{String(todayCount).padStart(2, "0")}</div>
+              <div className={styles.rows}>
+                {recentEntries.length === 0 && <p className={styles.empty}>No entries yet.</p>}
+                {recentEntries.map((e) => (
+                  <a key={e.id} href={`/dashboard?bucket=${encodeURIComponent(e.bucket)}#recent`}>
+                    {e.title}
+                    <span className={styles.vw}>view ↗</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            <div className={styles.cell}>
+              <div className={styles.lbl}>
+                Active Buckets<span>this week</span>
+              </div>
+              <div className={styles.bignum}>{String(score?.distinctBuckets ?? 0).padStart(2, "0")}</div>
+              <div className={`${styles.rows} ${styles.buckets}`}>
+                {topWeekBuckets.length === 0 && <p className={styles.empty}>No activity this week.</p>}
+                {topWeekBuckets.map(([name, count]) => (
+                  <a key={name} href={`/dashboard?bucket=${encodeURIComponent(name)}#recent`}>
+                    {name}
+                    <span className={styles.ct}>{count}</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            <div className={styles.cell}>
+              <div className={styles.lbl}>
+                Actionability<span>weekly avg</span>
+              </div>
+              <div className={styles.dotchart}>
+                {dayLitCounts.map((lit, i) => (
+                  <div className={styles.dotcol} key={i}>
+                    {Array.from({ length: 6 }).map((_, j) => (
+                      <i key={j} className={j < lit ? "" : styles.dim} />
+                    ))}
+                  </div>
+                ))}
+              </div>
+              <div className={styles.daylbl}>
+                {DAY_LABELS.map((d) => (
+                  <span key={d}>{d}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.grid2}>
+            <div className={styles.cell}>
+              <div className={styles.lbl}>Review Queue</div>
+              <div className={styles.tiles}>
+                <div className={`${styles.tile} ${byInterval[7] > 0 ? styles.hot : ""}`}>
+                  <b>{byInterval[7]}</b>
+                  <span>7 days</span>
+                </div>
+                <div className={styles.tile}>
+                  <b>{byInterval[14]}</b>
+                  <span>14 days</span>
+                </div>
+                <div className={styles.tile}>
+                  <b>{byInterval[30]}</b>
+                  <span>30 days</span>
+                </div>
+                <div className={styles.tile}>
+                  <b>{dueEntries.length}</b>
+                  <span>total due</span>
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.cell}>
+              <div className={styles.lbl}>
+                Capture Activity<span>Mon – Sun</span>
+              </div>
+              <div className={styles.legend}>
+                <span>
+                  <i style={{ background: "#eef3fe" }} />
+                  None
+                </span>
+                <span>
+                  <i style={{ background: "#bcd4fb" }} />
+                  Light
+                </span>
+                <span>
+                  <i style={{ background: "#5f92f4" }} />
+                  Active
+                </span>
+                <span>
+                  <i style={{ background: "#1c4ed8" }} />
+                  Heavy
+                </span>
+              </div>
+              {topWeekBuckets.length === 0 ? (
+                <p className={styles.empty}>No activity this week.</p>
+              ) : (
+                <div className={styles.heat}>
+                  {topWeekBuckets.map(([name]) => (
+                    <Fragment key={name}>
+                      <div className={styles.rlabel}>{name}</div>
+                      {heatCounts.get(name)!.map((c, i) => (
+                        <div key={i} className={styles.hcell} style={{ background: heatColor(c) }} />
+                      ))}
+                    </Fragment>
+                  ))}
+                  <div />
+                  {DAY_LABELS.map((d) => (
+                    <div key={d} className={styles.dlabel}>
+                      {d}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className={styles.cell}>
+              <div className={styles.lbl}>
+                Weekly Score<span>/ 100</span>
+              </div>
+              {scoreDims.map((dim) => (
+                <div
+                  key={dim.name}
+                  className={`${styles.scorebar} ${dim.value < 50 ? styles.warn : ""}`}
+                >
+                  <span className={styles.sn}>
+                    {dim.name}
+                    {dim.value < 50 && (
+                      <>
+                        <br />
+                        <span className={styles.tag}>Needs attention</span>
+                      </>
+                    )}
+                  </span>
+                  <span className={styles.sv}>{dim.value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
       )}
+    </div>
     </div>
   );
 }

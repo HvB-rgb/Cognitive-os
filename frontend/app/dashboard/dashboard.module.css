@@ -1,0 +1,351 @@
+/* CSS Modules here rejects pure :global(body) rules (no local class), so
+   the light theme lives on this full-bleed outer wrapper instead of the
+   real <body> element — .inner below keeps the original centered-column
+   layout, same visual result as the source design either way. */
+.page {
+  min-height: 100vh;
+  font-family: "Inter", system-ui, sans-serif;
+  background: #f5f1e8;
+  color: #1c1c20;
+}
+.wrap {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 28px 32px 60px;
+}
+.errbox {
+  border: 1px solid #e2a8a8;
+  background: #fdf1f1;
+  color: #a33;
+  border-radius: 8px;
+  padding: 14px 18px;
+  font-size: 14px;
+}
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #e2dbc7;
+  margin-bottom: 26px;
+}
+.word {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+.search {
+  flex: 1;
+  max-width: 440px;
+  border: 1px dashed #cfc6ab;
+  border-radius: 4px;
+  padding: 9px 14px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11.5px;
+  letter-spacing: 0.05em;
+  color: #9a9482;
+  text-transform: uppercase;
+}
+.navpills {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.navpills a,
+.navpills span {
+  padding: 8px 14px;
+  border-radius: 5px;
+  color: #8a8474;
+  cursor: pointer;
+  text-decoration: none;
+}
+.navpills span.active {
+  background: #1c1c20;
+  color: #fff;
+  font-weight: 600;
+}
+.hrow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 26px;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.h1 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 500;
+  font-size: 42px;
+  margin: 0 0 6px;
+  letter-spacing: -0.01em;
+}
+.sub {
+  font-size: 14px;
+  color: #7a7568;
+  margin: 0;
+}
+.chips {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #faf8f2;
+  border: 1px solid #e2dbc7;
+  border-radius: 5px;
+  padding: 8px 12px;
+  color: #5b564a;
+}
+.chip b {
+  background: #1c1c20;
+  color: #fff;
+  border-radius: 3px;
+  padding: 1px 7px;
+  font-size: 11px;
+}
+.today {
+  background: #1c1c20;
+  color: #fff;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border: 1px solid #e2dbc7;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #faf8f2;
+  margin-bottom: 16px;
+}
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr 1fr;
+  border: 1px solid #e2dbc7;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #faf8f2;
+}
+.cell {
+  padding: 20px;
+  border-right: 1px dashed #e2dbc7;
+}
+.grid > .cell:last-child,
+.grid2 > .cell:last-child {
+  border-right: none;
+}
+.lbl {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8a8474;
+  border-bottom: 1px solid #e2dbc7;
+  padding-bottom: 10px;
+  margin-bottom: 14px;
+  display: flex;
+  justify-content: space-between;
+}
+.empty {
+  font-size: 12.5px;
+  color: #9a9482;
+  margin: 0;
+}
+.dark {
+  background: #1c1c20;
+  color: #fff;
+}
+.dark .lbl {
+  color: #9a9aa2;
+  border-color: #333338;
+}
+.linklist a {
+  display: block;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11.5px;
+  letter-spacing: 0.02em;
+  color: #d8d8dc;
+  text-decoration: none;
+  padding: 7px 0;
+  cursor: pointer;
+}
+.linklist a b {
+  color: #7fa8f7;
+  margin-right: 6px;
+}
+.bignum {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 44px;
+  text-align: right;
+  margin: -6px 0 10px;
+}
+.rows a {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-top: 1px solid #ece6d5;
+  font-size: 12.5px;
+  text-decoration: none;
+  color: #1c1c20;
+}
+.rows a:first-child {
+  border-top: none;
+}
+.rows a span.vw {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  color: #9a9482;
+}
+.buckets a {
+  font-weight: 500;
+}
+.buckets a span.ct {
+  font-family: "JetBrains Mono", monospace;
+  color: #9a9482;
+  font-weight: 400;
+}
+.dotchart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 150px;
+  margin-top: 6px;
+}
+.dotcol {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 3px;
+  align-items: center;
+}
+.dotcol i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #2f6fed;
+  display: block;
+}
+.dotcol i.dim {
+  background: #dbe6fc;
+}
+.daylbl {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  color: #9a9482;
+  text-transform: uppercase;
+}
+.tiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.tile {
+  border: 1px solid #e2dbc7;
+  border-radius: 6px;
+  padding: 12px;
+  text-align: center;
+}
+.tile.hot {
+  background: #1c1c20;
+  color: #fff;
+  border-color: #1c1c20;
+}
+.tile b {
+  display: block;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 15px;
+}
+.tile span {
+  font-size: 10px;
+  color: #9a9482;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.tile.hot span {
+  color: #9a9aa4;
+}
+.legend {
+  display: flex;
+  gap: 14px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 9.5px;
+  text-transform: uppercase;
+  color: #9a9482;
+  letter-spacing: 0.03em;
+  margin-bottom: 10px;
+}
+.legend i {
+  width: 9px;
+  height: 9px;
+  display: inline-block;
+  border-radius: 2px;
+  margin-right: 5px;
+  vertical-align: -1px;
+}
+.heat {
+  display: grid;
+  grid-template-columns: 90px repeat(7, 1fr);
+  gap: 5px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 9.5px;
+  color: #9a9482;
+}
+.heat .rlabel {
+  display: flex;
+  align-items: center;
+}
+.heat .hcell {
+  aspect-ratio: 1;
+  border-radius: 3px;
+}
+.heat .dlabel {
+  text-align: center;
+  color: #9a9482;
+  padding-bottom: 2px;
+}
+.scorebar {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 10px 0;
+  border-top: 1px solid #ece6d5;
+}
+.scorebar:first-child {
+  border-top: none;
+}
+.scorebar .sn {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  color: #8a8474;
+  letter-spacing: 0.04em;
+}
+.scorebar .sv {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 26px;
+}
+.warn {
+  background: #fdf1d8;
+  margin: 0 -20px;
+  padding: 10px 20px;
+  border-top-color: transparent;
+}
+.warn .tag {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 9.5px;
+  color: #a3690a;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}

@@ -123,6 +123,29 @@ export async function getLatestDailyPattern(): Promise<DailyPattern | null> {
   return data?.[0] ?? null;
 }
 
+export type WeekActivityEntry = {
+  bucket: string;
+  actionability_score: number;
+  created_at: string;
+};
+
+/** Raw last-7-days entries (bucket/score/timestamp only) — the overview
+ * dashboard derives "active buckets this week", the capture heatmap, and
+ * the actionability dot-chart from this single query instead of three. */
+export async function getWeekActivity(): Promise<WeekActivityEntry[]> {
+  const supabase = getAdminClient();
+  const weekAgo = new Date();
+  weekAgo.setDate(weekAgo.getDate() - 7);
+
+  const { data } = await supabase
+    .from("cognitive_entries")
+    .select("bucket, actionability_score, created_at")
+    .gte("created_at", weekAgo.toISOString())
+    .eq("processing_status", "completed");
+
+  return (data ?? []) as WeekActivityEntry[];
+}
+
 export async function markResurfaced(entryId: string): Promise<void> {
   const supabase = getAdminClient();
   const { data } = await supabase
