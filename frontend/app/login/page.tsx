@@ -57,7 +57,6 @@ export default function LoginPage() {
           >
             Get started
           </button>
-          <span className="hamb">☰</span>
         </div>
       </div>
 

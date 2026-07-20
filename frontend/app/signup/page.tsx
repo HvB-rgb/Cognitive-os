@@ -73,10 +73,9 @@ export default function SignupPage() {
     const heroLogo = document.getElementById("heroLogo") as HTMLImageElement | null;
     const dockedLogo = document.getElementById("dockedLogo") as HTMLImageElement | null;
     const heroGlow = document.getElementById("heroGlow");
-    const badge = document.getElementById("powerBadge");
     const dockSlot = document.getElementById("dockSlot");
     const quoteBlock = document.querySelector(".quote-block");
-    if (!heroLogo || !dockedLogo || !heroGlow || !badge || !dockSlot || !quoteBlock) return;
+    if (!heroLogo || !dockedLogo || !heroGlow || !dockSlot || !quoteBlock) return;
 
     let docked = false;
     let quoteBlockDocTop = 0;
@@ -139,10 +138,6 @@ export default function SignupPage() {
         (heroGlow as HTMLElement).style.background = `radial-gradient(circle, rgba(47,111,237,${p * 0.6 * (1 - e)}) 0%, rgba(47,111,237,${p * 0.12 * (1 - e)}) 40%, rgba(47,111,237,0) 60%)`;
         (heroGlow as HTMLElement).style.opacity = String(1 - e);
       }
-      (badge as HTMLElement).style.boxShadow = `0 0 ${p * 46}px ${p * 10}px rgba(47,111,237,${p * 0.9})`;
-      (badge as HTMLElement).style.transform = `scale(${1 + p * 0.35}) rotate(${p * 20}deg)`;
-      const badgeImg = badge!.querySelector("img") as HTMLElement | null;
-      if (badgeImg) badgeImg.style.filter = `brightness(${1 + p * 0.5}) saturate(${1 + p * 0.6})`;
     }
 
     window.addEventListener("resize", measure);
@@ -185,7 +180,6 @@ export default function SignupPage() {
           >
             Get started
           </button>
-          <span className="hamb">☰</span>
         </div>
       </div>
 
@@ -455,10 +449,6 @@ export default function SignupPage() {
           transition: "filter .15s ease-out,opacity .2s ease-out,transform .15s ease-out",
         }}
       />
-      <div className="power-badge" id="powerBadge">
-        <img src="/logo.png" alt="" />
-      </div>
-
       <style jsx>{`
         * {
           box-sizing: border-box;
@@ -752,26 +742,6 @@ export default function SignupPage() {
         .foot a {
           color: #2f6fed;
           cursor: pointer;
-        }
-        .power-badge {
-          position: fixed;
-          right: 28px;
-          bottom: 28px;
-          width: 60px;
-          height: 60px;
-          border-radius: 50%;
-          background: #fff;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 60;
-          transition: transform 0.1s linear;
-        }
-        .power-badge img {
-          width: 60%;
-          height: 60%;
-          object-fit: contain;
-          transition: filter 0.1s linear;
         }
       `}</style>
     </>
