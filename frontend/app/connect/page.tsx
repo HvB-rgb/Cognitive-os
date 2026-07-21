@@ -7,7 +7,7 @@ import styles from "./connect.module.css";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? "";
 const ENDPOINT = `${BACKEND_URL}/api/process/text`;
-const SHORTCUT_URL = "https://www.icloud.com/shortcuts/4c3c504a33be44b291c127e4e3428e2f";
+const SHORTCUT_URL = "https://www.icloud.com/shortcuts/e2b4e34750634db995cd86b7212c865c";
 
 export default function ConnectPage() {
   const router = useRouter();
