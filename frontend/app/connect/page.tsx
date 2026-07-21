@@ -7,11 +7,12 @@ import styles from "./connect.module.css";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? "";
 const ENDPOINT = `${BACKEND_URL}/api/process/text`;
+const SHORTCUT_URL = "https://www.icloud.com/shortcuts/4c3c504a33be44b291c127e4e3428e2f";
 
 export default function ConnectPage() {
   const router = useRouter();
   const [token, setToken] = useState<string | null>(null);
-  const [copied, setCopied] = useState<"token" | "url" | null>(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const t = localStorage.getItem("dashboard_token");
@@ -22,11 +23,11 @@ export default function ConnectPage() {
     setToken(t);
   }, [router]);
 
-  async function copy(value: string, which: "token" | "url") {
+  async function copy(value: string) {
     try {
       await navigator.clipboard.writeText(value);
-      setCopied(which);
-      setTimeout(() => setCopied(null), 1500);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
     } catch {
       /* clipboard blocked — user can select manually */
     }
@@ -55,73 +56,83 @@ export default function ConnectPage() {
         <h1 className={styles.h1}>Save from your iPhone</h1>
         <p className={styles.sub}>
           Set this up once, then send reels, links, or anything you&apos;re looking at straight to
-          Cognitive OS from the Share menu — without leaving the app you&apos;re in.
+          Cognitive OS from the Share menu — without leaving the app you&apos;re in. Open this page on
+          your iPhone to add it.
         </p>
 
+        {/* ── Primary path: the ready-made shortcut ── */}
         <div className={styles.card}>
-          <p className={styles.lbl}>Your personal key</p>
-          <div className={styles.tokenRow}>
-            <div className={styles.token}>{token}</div>
-            <button
-              className={`${styles.copyBtn} ${copied === "token" ? styles.copied : ""}`}
-              onClick={() => copy(token, "token")}
-            >
-              {copied === "token" ? "Copied" : "Copy"}
-            </button>
-          </div>
-          <p className={styles.note}>
-            Keep this private — it&apos;s what tells Cognitive OS the saved item is yours. Anyone with
-            it can save into your account.
-          </p>
-        </div>
-
-        <div className={styles.card}>
-          <p className={styles.lbl}>Build the shortcut (once)</p>
+          <p className={styles.lbl}>Set up in 3 steps</p>
           <ol className={styles.steps}>
             <li>
-              Open the <b>Shortcuts</b> app on your iPhone → tap <span className={styles.kv}>+</span> to
-              create a new shortcut.
+              <a className={styles.shortcutBtn} href={SHORTCUT_URL} target="_blank" rel="noopener noreferrer">
+                Get the shortcut
+              </a>
+              <span className={styles.stepNote}>
+                Opens in the Shortcuts app → tap <b>Add Shortcut</b>.
+              </span>
             </li>
             <li>
-              Add the action <span className={styles.kv}>Get Contents of URL</span>, then tap
-              &quot;Show More&quot; and set it up like this:
-              <div className={styles.field}>
-                <b>URL:</b> {ENDPOINT}
-                <br />
-                <b>Method:</b> POST
-                <br />
-                <b>Headers:</b>
-                <br />
-                &nbsp;&nbsp;Content-Type = application/json
-                <br />
-                &nbsp;&nbsp;X-Dashboard-Token = <span style={{ color: "#2f6fed" }}>(paste your key)</span>
-                <br />
-                <b>Request Body:</b> JSON
-                <br />
-                &nbsp;&nbsp;payload_type (Text) = url
-                <br />
-                &nbsp;&nbsp;raw_content (Text) = <b>Shortcut Input</b>
+              Copy your personal key:
+              <div className={styles.tokenRow}>
+                <div className={styles.token}>{token}</div>
+                <button
+                  className={`${styles.copyBtn} ${copied ? styles.copied : ""}`}
+                  onClick={() => copy(token)}
+                >
+                  {copied ? "Copied" : "Copy"}
+                </button>
               </div>
             </li>
             <li>
-              (Optional) Add <span className={styles.kv}>Show Notification</span> → &quot;Saved to
-              Cognitive OS ✓&quot; so you get a confirmation.
-            </li>
-            <li>
-              Open the shortcut&apos;s settings (ⓘ) → turn on <b>Show in Share Sheet</b>, and allow
-              types <b>URLs</b> and <b>Text</b>. Name it <b>Save to Cognitive OS</b>.
+              Open the shortcut → the <span className={styles.kv}>Get Contents of URL</span> action →{" "}
+              <b>Headers</b> → tap the <span className={styles.kv}>X-Dashboard-Token</span> value
+              (it says <span className={styles.kv}>PASTE_YOUR_KEY</span>) and paste your key over it.
+              That&apos;s it.
             </li>
           </ol>
+          <p className={styles.note}>
+            Keep your key private — it&apos;s what tells Cognitive OS the saved item is yours. Anyone
+            with it can save into your account.
+          </p>
         </div>
 
+        {/* ── How to use it ── */}
         <div className={styles.card}>
           <p className={styles.lbl}>Then, from anywhere</p>
           <p className={styles.usage}>
             In Instagram, open a reel → tap <b>Share</b> (the paper-airplane) → <b>Share to…</b> →{" "}
-            <b>Save to Cognitive OS</b>. That&apos;s it — it lands in your buckets and you stay in
-            Instagram. Works the same from Safari, YouTube, or any app&apos;s Share button.
+            <b>Save It To Cognitive OS</b>. It lands in your buckets and you stay in Instagram. Works
+            the same from Safari, YouTube, or any app&apos;s Share button.
           </p>
         </div>
+
+        {/* ── Fallback: build it by hand ── */}
+        <details className={styles.details}>
+          <summary className={styles.summary}>Prefer to build it by hand?</summary>
+          <div className={styles.field}>
+            <b>Get Contents of URL</b>
+            <br />
+            <b>URL:</b> {ENDPOINT}
+            <br />
+            <b>Method:</b> POST
+            <br />
+            <b>Headers:</b>
+            <br />
+            &nbsp;&nbsp;Content-Type = application/json
+            <br />
+            &nbsp;&nbsp;X-Dashboard-Token = <span style={{ color: "#2f6fed" }}>(your key)</span>
+            <br />
+            <b>Request Body:</b> JSON
+            <br />
+            &nbsp;&nbsp;payload_type (Text) = url
+            <br />
+            &nbsp;&nbsp;raw_content (Text) = <b>Shortcut Input</b>
+            <br />
+            <br />
+            Then in the shortcut settings, turn on <b>Show in Share Sheet</b> (accept URLs and Text).
+          </div>
+        </details>
       </div>
     </div>
   );

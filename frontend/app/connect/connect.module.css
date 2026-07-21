@@ -208,3 +208,49 @@
 .usage b {
   color: #1c1c20;
 }
+
+.shortcutBtn {
+  display: inline-block;
+  background: #2f6fed;
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  margin-bottom: 6px;
+}
+.stepNote {
+  display: block;
+  font-size: 13px;
+  color: #7a7568;
+  margin-top: 4px;
+}
+.stepNote b {
+  color: #1c1c20;
+}
+
+.details {
+  border: 1px solid #e2dbc7;
+  border-radius: 10px;
+  background: #faf8f2;
+  padding: 4px 20px;
+  margin-top: 4px;
+}
+.summary {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #8a8474;
+  cursor: pointer;
+  padding: 14px 0;
+  list-style: none;
+}
+.summary::-webkit-details-marker {
+  display: none;
+}
+.details[open] .summary {
+  border-bottom: 1px solid #ece6d5;
+  margin-bottom: 12px;
+}
