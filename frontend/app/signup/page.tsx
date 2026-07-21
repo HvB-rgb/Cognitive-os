@@ -73,9 +73,10 @@ export default function SignupPage() {
     const heroLogo = document.getElementById("heroLogo") as HTMLImageElement | null;
     const dockedLogo = document.getElementById("dockedLogo") as HTMLImageElement | null;
     const heroGlow = document.getElementById("heroGlow");
+    const badge = document.getElementById("powerBadge");
     const dockSlot = document.getElementById("dockSlot");
     const quoteBlock = document.querySelector(".quote-block");
-    if (!heroLogo || !dockedLogo || !heroGlow || !dockSlot || !quoteBlock) return;
+    if (!heroLogo || !dockedLogo || !heroGlow || !badge || !dockSlot || !quoteBlock) return;
 
     let docked = false;
     let quoteBlockDocTop = 0;
@@ -138,6 +139,10 @@ export default function SignupPage() {
         (heroGlow as HTMLElement).style.background = `radial-gradient(circle, rgba(47,111,237,${p * 0.6 * (1 - e)}) 0%, rgba(47,111,237,${p * 0.12 * (1 - e)}) 40%, rgba(47,111,237,0) 60%)`;
         (heroGlow as HTMLElement).style.opacity = String(1 - e);
       }
+      (badge as HTMLElement).style.boxShadow = `0 0 ${p * 46}px ${p * 10}px rgba(47,111,237,${p * 0.9})`;
+      (badge as HTMLElement).style.transform = `scale(${1 + p * 0.35}) rotate(${p * 20}deg)`;
+      const badgeImg = badge!.querySelector("img") as HTMLElement | null;
+      if (badgeImg) badgeImg.style.filter = `brightness(${1 + p * 0.5}) saturate(${1 + p * 0.6})`;
     }
 
     window.addEventListener("resize", measure);
@@ -164,22 +169,20 @@ export default function SignupPage() {
   return (
     <>
       <div className="topbar">
-        <img className="logo" src="/logo.png" alt="Cognitive OS" />
+        <img className="logo" src="/logo.png" alt="" />
+        <span className="wordmark">Cognitive OS</span>
         <div className="navbtns">
-          <button
-            className="btn"
-            style={{ background: "#fff", border: "1px solid #dcdce1", color: "#26262b" }}
-            onClick={() => router.push("/login")}
-          >
+          <button className="btn" style={{ background: "#faf8f2", border: "1px solid #e2dbc7", color: "#1c1c20" }} onClick={() => router.push("/login")}>
             Log In
           </button>
           <button
             className="btn"
-            style={{ background: "#26262b", color: "#fff" }}
+            style={{ background: "#1c1c20", color: "#fff" }}
             onClick={() => document.getElementById("signup")?.scrollIntoView({ behavior: "smooth" })}
           >
             Get started
           </button>
+          <span className="hamb">☰</span>
         </div>
       </div>
 
@@ -405,7 +408,7 @@ export default function SignupPage() {
               </label>
 
               {error && (
-                <p style={{ color: "#e5484d", fontSize: 13, margin: "0 0 14px" }}>{error}</p>
+                <p style={{ color: "#c0392b", fontSize: 13, margin: "0 0 14px" }}>{error}</p>
               )}
 
               <button className="btn card-cta" type="submit" disabled={loading}>
@@ -449,6 +452,10 @@ export default function SignupPage() {
           transition: "filter .15s ease-out,opacity .2s ease-out,transform .15s ease-out",
         }}
       />
+      <div className="power-badge" id="powerBadge">
+        <img src="/logo.png" alt="" />
+      </div>
+
       <style jsx>{`
         * {
           box-sizing: border-box;
@@ -461,37 +468,45 @@ export default function SignupPage() {
         :global(body) {
           margin: 0;
           font-family: "Inter", system-ui, sans-serif;
-          background: #ececed !important;
+          background: #f5f1e8 !important;
           color: #1c1c20 !important;
         }
         .topbar {
           position: sticky;
-          top: 16px;
+          top: 0;
           z-index: 50;
           display: flex;
           align-items: center;
-          justify-content: space-between;
-          padding: 8px 8px 8px 18px;
-          border-radius: 999px;
-          margin: 16px auto 0;
-          width: min(900px, 90vw);
-          background: #fff;
-          border: 1px solid #dcdce1;
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+          gap: 24px;
+          padding: 16px 32px;
+          border-bottom: 1px solid #e2dbc7;
+          background: #faf8f2;
         }
         .logo {
-          width: 30px;
-          height: 30px;
+          width: 28px;
+          height: 28px;
           object-fit: contain;
+        }
+        .wordmark {
+          font-family: "JetBrains Mono", monospace;
+          font-size: 14px;
+          font-weight: 600;
+          letter-spacing: 0.02em;
+          margin-right: auto;
+          padding-left: 8px;
         }
         .navbtns {
           display: flex;
           align-items: center;
-          gap: 10px;
+          gap: 8px;
+          font-family: "JetBrains Mono", monospace;
+          font-size: 14px;
+          letter-spacing: 0.05em;
+          text-transform: uppercase;
         }
         .btn {
-          border-radius: 999px;
-          padding: 9px 18px;
+          border-radius: 6px;
+          padding: 10px 18px;
           font-size: 14px;
           font-weight: 600;
           border: none;
@@ -499,15 +514,15 @@ export default function SignupPage() {
           font-family: inherit;
         }
         .hamb {
-          width: 34px;
-          height: 34px;
+          width: 30px;
+          height: 30px;
           border-radius: 50%;
-          border: 1px solid #dcdce1;
-          color: #26262b;
+          border: 1px solid #e2dbc7;
+          color: #1c1c20;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 16px;
+          font-size: 14px;
         }
         .hero {
           max-width: 720px;
@@ -525,9 +540,10 @@ export default function SignupPage() {
           transition: filter 0.15s ease-out, opacity 0.15s ease-out, transform 0.15s ease-out;
         }
         .h1 {
+          font-family: "Newsreader", serif;
+          font-weight: 500;
           font-size: 44px;
           line-height: 1.15;
-          font-weight: 600;
           letter-spacing: -0.01em;
           margin: 0 0 18px;
         }
@@ -536,7 +552,7 @@ export default function SignupPage() {
         }
         .hero-sub {
           font-size: 17px;
-          color: #5b5b63;
+          color: #5b564a;
           line-height: 1.6;
           max-width: 560px;
           margin: 0 auto 32px;
@@ -551,13 +567,15 @@ export default function SignupPage() {
           color: #fff;
           padding: 13px 26px;
           font-size: 15px;
+          border-radius: 8px;
         }
         .cta-ghost {
-          background: #fff;
-          color: #26262b;
-          border: 1px solid #dcdce1;
+          background: #faf8f2;
+          color: #1c1c20;
+          border: 1px solid #e2dbc7;
           padding: 13px 26px;
           font-size: 15px;
+          border-radius: 8px;
         }
         :global(section.copy) {
           max-width: 640px;
@@ -572,16 +590,18 @@ export default function SignupPage() {
           transform: translateY(0);
         }
         .eyebrow {
-          font-size: 11px;
+          font-family: "JetBrains Mono", monospace;
+          font-size: 10.5px;
           font-weight: 600;
           text-transform: uppercase;
-          letter-spacing: 0.1em;
-          color: #2f6fed;
+          letter-spacing: 0.08em;
+          color: #8a8474;
           margin: 0 0 10px;
         }
         :global(.copy h2) {
+          font-family: "Newsreader", serif;
+          font-weight: 500;
           font-size: 28px;
-          font-weight: 600;
           letter-spacing: -0.01em;
           margin: 0 0 18px;
         }
@@ -592,7 +612,8 @@ export default function SignupPage() {
           margin: 0 0 16px;
         }
         :global(.pullquote) {
-          font-size: 20px;
+          font-family: "Newsreader", serif;
+          font-size: 21px;
           font-weight: 500;
           line-height: 1.5;
           color: #1c1c20;
@@ -612,7 +633,7 @@ export default function SignupPage() {
           display: flex;
           gap: 20px;
           padding: 22px 0;
-          border-top: 1px solid #dcdce1;
+          border-top: 1px dashed #cfc6ab;
           opacity: 0;
           transform: translateY(16px);
           transition: opacity 0.6s ease, transform 0.6s ease;
@@ -622,7 +643,7 @@ export default function SignupPage() {
           transform: translateY(0);
         }
         :global(.feature:last-child) {
-          border-bottom: 1px solid #dcdce1;
+          border-bottom: 1px dashed #cfc6ab;
         }
         .fnum {
           font-family: "JetBrains Mono", monospace;
@@ -639,7 +660,7 @@ export default function SignupPage() {
         }
         .fbody span {
           font-size: 14px;
-          color: #5b5b63;
+          color: #5b564a;
           line-height: 1.6;
         }
         .quote-block {
@@ -660,10 +681,11 @@ export default function SignupPage() {
           transform: translateY(0);
         }
         .quote-inner :global(.eyebrow) {
-          color: #7fa8f7;
+          color: #9a9aa4;
         }
         .quote-inner p {
-          font-size: 26px;
+          font-family: "Newsreader", serif;
+          font-size: 27px;
           line-height: 1.5;
           font-weight: 500;
           letter-spacing: -0.005em;
@@ -676,21 +698,22 @@ export default function SignupPage() {
         }
         .card {
           width: 400px;
-          background: #ffffff;
-          border: 1px solid #dcdce1;
-          border-radius: 16px;
+          background: #faf8f2;
+          border: 1px solid #e2dbc7;
+          border-radius: 10px;
           padding: 36px 36px 32px;
-          box-shadow: 0 12px 32px rgba(20, 20, 25, 0.08);
+          box-shadow: 0 12px 32px rgba(20, 20, 25, 0.06);
         }
         .card h1 {
-          font-size: 24px;
-          font-weight: 600;
+          font-family: "Newsreader", serif;
+          font-weight: 500;
+          font-size: 26px;
           letter-spacing: -0.01em;
           margin: 0 0 4px;
         }
         .card .sub {
           font-size: 14px;
-          color: #7a7a82;
+          color: #7a7568;
           margin: 0 0 24px;
         }
         .row2 {
@@ -703,20 +726,23 @@ export default function SignupPage() {
           display: flex;
           flex-direction: column;
           gap: 6px;
-          font-size: 12px;
-          color: #7a7a82;
+          font-family: "JetBrains Mono", monospace;
+          font-size: 10.5px;
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          color: #8a8474;
           margin-bottom: 14px;
         }
         input {
           width: 100%;
-          background: #f4f4f6;
-          border: 1px solid #dcdce1;
-          border-radius: 8px;
+          background: #f5f1e8;
+          border: 1px solid #e2dbc7;
+          border-radius: 6px;
           padding: 10px 12px;
           font-size: 14px;
           color: #1c1c20;
           outline: none;
-          font-family: inherit;
+          font-family: "Inter", sans-serif;
         }
         input:focus {
           border-color: #2f6fed;
@@ -727,7 +753,12 @@ export default function SignupPage() {
           color: #fff;
           padding: 12px;
           font-size: 14px;
+          border-radius: 8px;
           margin-top: 6px;
+          text-transform: none;
+          letter-spacing: normal;
+          font-family: "Inter", sans-serif;
+          font-weight: 600;
         }
         .card-cta:disabled {
           opacity: 0.6;
@@ -736,12 +767,33 @@ export default function SignupPage() {
         .foot {
           text-align: center;
           font-size: 12px;
-          color: #7a7a82;
+          color: #7a7568;
           margin-top: 16px;
         }
         .foot a {
           color: #2f6fed;
           cursor: pointer;
+        }
+        .power-badge {
+          position: fixed;
+          right: 28px;
+          bottom: 28px;
+          width: 60px;
+          height: 60px;
+          border-radius: 50%;
+          background: #faf8f2;
+          border: 1px solid #e2dbc7;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 60;
+          transition: transform 0.1s linear;
+        }
+        .power-badge img {
+          width: 60%;
+          height: 60%;
+          object-fit: contain;
+          transition: filter 0.1s linear;
         }
       `}</style>
     </>

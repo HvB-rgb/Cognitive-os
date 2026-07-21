@@ -110,12 +110,12 @@ export default function CapturePage() {
   return (
     <>
       <div className="topbar">
-        <img className="logo" src="/logo.png" alt="Cognitive OS" />
+        <img className="logo" src="/logo.png" alt="" />
+        <span className="wordmark">Cognitive OS</span>
         <div className="navbtns">
           <a className="active">Capture</a>
-          <a onClick={() => router.push("/dashboard")}>Entries</a>
+          <a onClick={() => router.push("/dashboard")}>Dashboard</a>
           <a onClick={() => router.push("/graph")}>Graph</a>
-          <a onClick={() => router.push("/insight")}>Insight</a>
           <a onClick={() => router.push("/review")}>Review</a>
           <span className="hamb" onClick={logout} title="Sign out">
             ☰
@@ -130,7 +130,6 @@ export default function CapturePage() {
         <img className="float-mark fm-r2" src="/logo.png" alt="" style={{ "--end-op": 0.2 } as React.CSSProperties} />
         <div className="wrap">
           <h1 className="h1">{firstName ? `Hey, ${firstName}` : "Capture"}</h1>
-          <p className="sub">Same as Telegram: any thought, a link, or a voice note.</p>
 
           <div className="card">
             <textarea
@@ -141,7 +140,7 @@ export default function CapturePage() {
             />
             <div className="card-foot">
               <label className="voice">
-                🎙️ Voice note
+                Voice note
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -154,7 +153,7 @@ export default function CapturePage() {
                 />
               </label>
               <button
-                className="btn capture-btn"
+                className="capture-btn"
                 onClick={submitText}
                 disabled={!text.trim() || status === "processing"}
               >
@@ -165,7 +164,7 @@ export default function CapturePage() {
 
           {errorMsg && (
             <div className="card">
-              <p style={{ color: "#e5484d", fontSize: 14, margin: 0 }}>{errorMsg}</p>
+              <p style={{ color: "#c0392b", fontSize: 14, margin: 0 }}>{errorMsg}</p>
             </div>
           )}
 
@@ -180,11 +179,6 @@ export default function CapturePage() {
                   ))}
                 </ul>
               )}
-              <div className="chips">
-                <span className="chip">📁 {result.suggested_bucket}</span>
-                <span className="chip">🧠 {result.cognitive_mode}</span>
-                <span className="chip">⚡ {result.actionability_score}</span>
-              </div>
             </div>
           )}
         </div>
@@ -198,62 +192,61 @@ export default function CapturePage() {
           margin: 0;
           min-height: 100vh;
           font-family: "Inter", system-ui, sans-serif;
-          background: #ececed !important;
+          background: #f5f1e8 !important;
           color: #1c1c20 !important;
         }
         .topbar {
-          position: sticky;
-          top: 16px;
           display: flex;
           align-items: center;
-          justify-content: space-between;
-          padding: 8px 8px 8px 18px;
-          border-radius: 999px;
-          margin: 16px auto 0;
-          width: min(900px, 90vw);
-          background: #fff;
-          border: 1px solid #dcdce1;
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
-          z-index: 10;
+          gap: 24px;
+          padding: 16px 32px;
+          border-bottom: 1px solid #e2dbc7;
+          background: #faf8f2;
         }
         .logo {
-          width: 30px;
-          height: 30px;
+          width: 28px;
+          height: 28px;
           object-fit: contain;
+        }
+        .wordmark {
+          font-family: "JetBrains Mono", monospace;
+          font-size: 14px;
+          font-weight: 600;
+          letter-spacing: 0.02em;
+          margin-right: auto;
+          padding-left: 8px;
         }
         .navbtns {
           display: flex;
           align-items: center;
-          gap: 18px;
+          gap: 8px;
+          font-family: "JetBrains Mono", monospace;
           font-size: 14px;
+          letter-spacing: 0.05em;
+          text-transform: uppercase;
         }
         .navbtns a {
+          padding: 9px 16px;
+          border-radius: 6px;
           cursor: pointer;
-          color: #7a7a82;
+          color: #8a8474;
         }
         .navbtns a.active {
-          color: #1c1c20;
+          background: #1c1c20;
+          color: #fff;
           font-weight: 600;
-        }
-        .btn {
-          border-radius: 999px;
-          padding: 9px 18px;
-          font-size: 14px;
-          font-weight: 600;
-          border: none;
-          cursor: pointer;
-          font-family: inherit;
         }
         .hamb {
-          width: 34px;
-          height: 34px;
+          width: 30px;
+          height: 30px;
           border-radius: 50%;
-          border: 1px solid #dcdce1;
-          color: #26262b;
+          border: 1px solid #e2dbc7;
+          color: #1c1c20;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 16px;
+          font-size: 14px;
+          margin-left: 8px;
           cursor: pointer;
         }
         .float-mark {
@@ -317,7 +310,7 @@ export default function CapturePage() {
         .page-bg {
           position: relative;
           overflow: hidden;
-          min-height: calc(100vh - 90px);
+          min-height: calc(100vh - 64px);
         }
         .wrap {
           max-width: 640px;
@@ -326,22 +319,18 @@ export default function CapturePage() {
           position: relative;
         }
         .h1 {
-          font-size: 26px;
-          font-weight: 600;
+          font-family: "Newsreader", serif;
+          font-weight: 500;
+          font-size: 30px;
           letter-spacing: -0.01em;
-          margin: 0 0 8px;
-        }
-        .sub {
-          font-size: 14px;
-          color: #7a7a82;
-          margin: 0 0 28px;
+          margin: 0 0 24px;
         }
         .card {
-          background: #ffffff;
-          border: 1px solid #dcdce1;
-          border-radius: 16px;
+          background: #faf8f2;
+          border: 1px solid #e2dbc7;
+          border-radius: 10px;
           padding: 20px;
-          box-shadow: 0 12px 32px rgba(20, 20, 25, 0.06);
+          box-shadow: 0 8px 24px rgba(20, 20, 25, 0.05);
           margin-bottom: 16px;
         }
         textarea {
@@ -355,7 +344,7 @@ export default function CapturePage() {
           background: transparent;
         }
         textarea::placeholder {
-          color: #a8a8ae;
+          color: #a8a29a;
         }
         .card-foot {
           display: flex;
@@ -363,11 +352,14 @@ export default function CapturePage() {
           align-items: center;
           margin-top: 12px;
           padding-top: 12px;
-          border-top: 1px solid #ececed;
+          border-top: 1px dashed #e2dbc7;
         }
         .voice {
-          font-size: 13px;
-          color: #7a7a82;
+          font-family: "JetBrains Mono", monospace;
+          font-size: 11px;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          color: #8a8474;
           display: flex;
           gap: 6px;
           align-items: center;
@@ -378,6 +370,11 @@ export default function CapturePage() {
           color: #fff;
           padding: 10px 20px;
           font-size: 14px;
+          border-radius: 8px;
+          border: none;
+          font-weight: 600;
+          cursor: pointer;
+          font-family: inherit;
         }
         .capture-btn:disabled {
           opacity: 0.4;
@@ -387,32 +384,20 @@ export default function CapturePage() {
           margin: 0 0 10px;
           font-size: 14px;
           line-height: 1.6;
-          color: #4b4b52;
+          color: #5b564a;
         }
         .result p.title {
           font-weight: 600;
           color: #1c1c20;
           font-size: 15px;
+          font-family: "Newsreader", serif;
         }
         .result ul {
           margin: 0 0 14px;
           padding-left: 18px;
           font-size: 14px;
-          color: #5b5b63;
+          color: #5b564a;
           line-height: 1.7;
-        }
-        .chips {
-          display: flex;
-          gap: 8px;
-          flex-wrap: wrap;
-        }
-        .chip {
-          font-family: "JetBrains Mono", monospace;
-          font-size: 12px;
-          background: #eef3fe;
-          color: #2f6fed;
-          border-radius: 999px;
-          padding: 4px 10px;
         }
       `}</style>
     </>

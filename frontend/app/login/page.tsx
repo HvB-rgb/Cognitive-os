@@ -45,18 +45,20 @@ export default function LoginPage() {
   return (
     <>
       <div className="topbar">
-        <img className="logo" src="/logo.png" alt="Cognitive OS" />
+        <img className="logo" src="/logo.png" alt="" />
+        <span className="wordmark">Cognitive OS</span>
         <div className="navbtns">
-          <button className="btn" style={{ background: "#26262b", color: "#fff" }}>
+          <button className="btn" style={{ background: "#1c1c20", color: "#fff" }}>
             Log In
           </button>
           <button
             className="btn"
-            style={{ background: "#fff", border: "1px solid #dcdce1", color: "#26262b" }}
+            style={{ background: "#faf8f2", border: "1px solid #e2dbc7", color: "#1c1c20" }}
             onClick={() => router.push("/signup")}
           >
             Get started
           </button>
+          <span className="hamb">☰</span>
         </div>
       </div>
 
@@ -91,7 +93,7 @@ export default function LoginPage() {
               </label>
 
               {error && (
-                <p style={{ color: "#e5484d", fontSize: 13, margin: "0 0 14px", textAlign: "left" }}>{error}</p>
+                <p style={{ color: "#c0392b", fontSize: 13, margin: "0 0 14px", textAlign: "left" }}>{error}</p>
               )}
 
               <button className="btn card-cta" type="submit" disabled={loading || !username.trim()}>
@@ -113,36 +115,42 @@ export default function LoginPage() {
           margin: 0;
           min-height: 100vh;
           font-family: "Inter", system-ui, sans-serif;
-          background: #ececed !important;
+          background: #f5f1e8 !important;
           color: #1c1c20 !important;
         }
         .topbar {
-          position: sticky;
-          top: 16px;
           display: flex;
           align-items: center;
-          justify-content: space-between;
-          padding: 8px 8px 8px 18px;
-          border-radius: 999px;
-          margin: 16px auto 0;
-          width: min(900px, 90vw);
-          background: #fff;
-          border: 1px solid #dcdce1;
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+          gap: 24px;
+          padding: 16px 32px;
+          border-bottom: 1px solid #e2dbc7;
+          background: #faf8f2;
         }
         .logo {
-          width: 30px;
-          height: 30px;
+          width: 28px;
+          height: 28px;
           object-fit: contain;
+        }
+        .wordmark {
+          font-family: "JetBrains Mono", monospace;
+          font-size: 14px;
+          font-weight: 600;
+          letter-spacing: 0.02em;
+          margin-right: auto;
+          padding-left: 8px;
         }
         .navbtns {
           display: flex;
           align-items: center;
-          gap: 10px;
+          gap: 8px;
+          font-family: "JetBrains Mono", monospace;
+          font-size: 14px;
+          letter-spacing: 0.05em;
+          text-transform: uppercase;
         }
         .btn {
-          border-radius: 999px;
-          padding: 9px 18px;
+          border-radius: 6px;
+          padding: 10px 18px;
           font-size: 14px;
           font-weight: 600;
           border: none;
@@ -150,15 +158,15 @@ export default function LoginPage() {
           font-family: inherit;
         }
         .hamb {
-          width: 34px;
-          height: 34px;
+          width: 30px;
+          height: 30px;
           border-radius: 50%;
-          border: 1px solid #dcdce1;
-          color: #26262b;
+          border: 1px solid #e2dbc7;
+          color: #1c1c20;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 16px;
+          font-size: 14px;
         }
         .float-mark {
           position: absolute;
@@ -219,7 +227,7 @@ export default function LoginPage() {
           animation: popRight 1s cubic-bezier(0.2, 0.8, 0.3, 1.2) 0.45s forwards;
         }
         .wrap {
-          min-height: calc(100vh - 90px);
+          min-height: calc(100vh - 64px);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -245,44 +253,44 @@ export default function LoginPage() {
         }
         .b1 {
           inset: 0;
-          border-radius: 72px;
-          background: #3a5fc4;
+          border-radius: 66px;
+          background: #f3ceb0;
         }
         .b2 {
           inset: 11px;
-          border-radius: 61px;
-          background: #2f5fd6;
+          border-radius: 55px;
+          background: #f6dcc4;
         }
         .b3 {
           inset: 22px;
-          border-radius: 50px;
-          background: #4a7ff0;
+          border-radius: 44px;
+          background: #f8e6d6;
         }
         .b4 {
           inset: 33px;
-          border-radius: 39px;
-          background: #7fa8f7;
+          border-radius: 33px;
+          background: #faeee3;
         }
         .b5 {
           inset: 44px;
-          border-radius: 28px;
-          background: #bcd4fb;
+          border-radius: 22px;
+          background: #fcf4ec;
         }
         .b6 {
           inset: 53px;
-          border-radius: 19px;
-          background: #f7f3ec;
+          border-radius: 13px;
+          background: #faf8f2;
         }
         .card {
           position: relative;
           z-index: 1;
           width: 380px;
-          background: #ffffff;
-          border: 1px solid #dcdce1;
-          border-radius: 16px;
+          background: #faf8f2;
+          border: 1px solid #e2dbc7;
+          border-radius: 10px;
           padding: 36px 36px 32px;
           text-align: center;
-          box-shadow: 0 12px 32px rgba(20, 20, 25, 0.08);
+          box-shadow: 0 12px 32px rgba(20, 20, 25, 0.06);
         }
         .mark {
           width: 45px;
@@ -292,30 +300,34 @@ export default function LoginPage() {
           filter: brightness(1.1) saturate(1.4);
         }
         .card h1 {
-          font-size: 24px;
-          font-weight: 600;
+          font-family: "Newsreader", serif;
+          font-weight: 500;
+          font-size: 26px;
           letter-spacing: -0.01em;
           margin: 0 0 4px;
         }
         .card .sub {
           font-size: 14px;
-          color: #7a7a82;
+          color: #7a7568;
           margin: 0 0 24px;
         }
         label {
           display: flex;
           flex-direction: column;
           gap: 6px;
-          font-size: 12px;
-          color: #7a7a82;
+          font-family: "JetBrains Mono", monospace;
+          font-size: 10.5px;
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          color: #8a8474;
           margin-bottom: 18px;
           text-align: left;
         }
         input {
           width: 100%;
-          background: #f4f4f6;
-          border: 1px solid #dcdce1;
-          border-radius: 8px;
+          background: #f5f1e8;
+          border: 1px solid #e2dbc7;
+          border-radius: 6px;
           padding: 10px 12px;
           font-size: 14px;
           font-family: "JetBrains Mono", monospace;
@@ -332,7 +344,11 @@ export default function LoginPage() {
           color: #fff;
           padding: 12px;
           font-size: 14px;
+          border-radius: 8px;
           margin-top: 4px;
+          text-transform: none;
+          letter-spacing: normal;
+          font-family: "Inter", sans-serif;
         }
         .card-cta:disabled {
           opacity: 0.6;
@@ -341,7 +357,7 @@ export default function LoginPage() {
         .foot {
           text-align: center;
           font-size: 12px;
-          color: #7a7a82;
+          color: #7a7568;
           margin-top: 16px;
         }
         .foot a {
