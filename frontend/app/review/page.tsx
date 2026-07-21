@@ -1,4 +1,6 @@
+import { redirect } from "next/navigation";
 import { getSpacedRepetitionEntries, type SpacedEntry } from "@/lib/analyser";
+import { getSessionUserId } from "@/lib/session";
 import ReviewCard from "@/components/ReviewCard";
 import HamburgerLogout from "@/components/HamburgerLogout";
 import styles from "./review.module.css";
@@ -6,11 +8,14 @@ import styles from "./review.module.css";
 export const dynamic = "force-dynamic";
 
 export default async function ReviewPage() {
+  const userId = await getSessionUserId();
+  if (!userId) redirect("/login");
+
   let entries: SpacedEntry[] = [];
   let error: string | null = null;
 
   try {
-    entries = await getSpacedRepetitionEntries();
+    entries = await getSpacedRepetitionEntries(userId);
   } catch (e) {
     error = e instanceof Error ? e.message : "Failed to load review queue";
   }

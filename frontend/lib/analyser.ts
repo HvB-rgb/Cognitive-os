@@ -41,7 +41,7 @@ export type DailyPattern = {
   entry_count_at_trigger: number | null;
 };
 
-export async function getWeeklyScore(): Promise<WeeklyScore> {
+export async function getWeeklyScore(userId: string): Promise<WeeklyScore> {
   const supabase = getAdminClient();
   const weekAgo = new Date();
   weekAgo.setDate(weekAgo.getDate() - 7);
@@ -49,6 +49,7 @@ export async function getWeeklyScore(): Promise<WeeklyScore> {
   const { data } = await supabase
     .from("cognitive_entries")
     .select("bucket, cognitive_mode, created_at")
+    .eq("user_id", userId)
     .gte("created_at", weekAgo.toISOString())
     .eq("processing_status", "completed");
 
@@ -82,7 +83,7 @@ export async function getWeeklyScore(): Promise<WeeklyScore> {
   };
 }
 
-export async function getSpacedRepetitionEntries(): Promise<SpacedEntry[]> {
+export async function getSpacedRepetitionEntries(userId: string): Promise<SpacedEntry[]> {
   const supabase = getAdminClient();
   const today = new Date();
   const all: SpacedEntry[] = [];
@@ -96,6 +97,7 @@ export async function getSpacedRepetitionEntries(): Promise<SpacedEntry[]> {
     const { data } = await supabase
       .from("cognitive_entries")
       .select("id, title, summary, bucket, key_points, cognitive_mode, actionability_score, last_resurfaced_at, resurfaced_count, created_at")
+      .eq("user_id", userId)
       .gte("created_at", start.toISOString())
       .lt("created_at", end.toISOString())
       .eq("processing_status", "completed");
@@ -112,11 +114,12 @@ export async function getSpacedRepetitionEntries(): Promise<SpacedEntry[]> {
   return all;
 }
 
-export async function getLatestDailyPattern(): Promise<DailyPattern | null> {
+export async function getLatestDailyPattern(userId: string): Promise<DailyPattern | null> {
   const supabase = getAdminClient();
   const { data } = await supabase
     .from("daily_patterns")
     .select("date, convergence_score, weekly_score, cross_topic_data, contradiction_data, groq_synthesis, entry_count_at_trigger")
+    .eq("user_id", userId)
     .order("date", { ascending: false })
     .limit(1);
 
@@ -132,7 +135,7 @@ export type WeekActivityEntry = {
 /** Raw last-7-days entries (bucket/score/timestamp only) — the overview
  * dashboard derives "active buckets this week", the capture heatmap, and
  * the actionability dot-chart from this single query instead of three. */
-export async function getWeekActivity(): Promise<WeekActivityEntry[]> {
+export async function getWeekActivity(userId: string): Promise<WeekActivityEntry[]> {
   const supabase = getAdminClient();
   const weekAgo = new Date();
   weekAgo.setDate(weekAgo.getDate() - 7);
@@ -140,22 +143,24 @@ export async function getWeekActivity(): Promise<WeekActivityEntry[]> {
   const { data } = await supabase
     .from("cognitive_entries")
     .select("bucket, actionability_score, created_at")
+    .eq("user_id", userId)
     .gte("created_at", weekAgo.toISOString())
     .eq("processing_status", "completed");
 
   return (data ?? []) as WeekActivityEntry[];
 }
 
-export async function markResurfaced(entryId: string): Promise<void> {
+export async function markResurfaced(entryId: string, userId: string): Promise<void> {
   const supabase = getAdminClient();
   const { data } = await supabase
     .from("cognitive_entries")
     .select("resurfaced_count")
     .eq("id", entryId)
+    .eq("user_id", userId)
     .single();
 
   await supabase.from("cognitive_entries").update({
     resurfaced_count: (data?.resurfaced_count ?? 0) + 1,
     last_resurfaced_at: new Date().toISOString(),
-  }).eq("id", entryId);
+  }).eq("id", entryId).eq("user_id", userId);
 }

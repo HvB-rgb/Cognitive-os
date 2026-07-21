@@ -1,4 +1,5 @@
 import { Fragment } from "react";
+import { redirect } from "next/navigation";
 import { getEntries } from "@/lib/supabase";
 import {
   getWeeklyScore,
@@ -6,6 +7,7 @@ import {
   getLatestDailyPattern,
   getWeekActivity,
 } from "@/lib/analyser";
+import { getSessionUserId } from "@/lib/session";
 import Greeting from "@/components/Greeting";
 import styles from "./dashboard.module.css";
 
@@ -26,6 +28,9 @@ function heatColor(count: number): string {
 }
 
 export default async function DashboardPage() {
+  const userId = await getSessionUserId();
+  if (!userId) redirect("/login");
+
   let error: string | null = null;
   let entries: Awaited<ReturnType<typeof getEntries>> = [];
   let score: Awaited<ReturnType<typeof getWeeklyScore>> | null = null;
@@ -35,11 +40,11 @@ export default async function DashboardPage() {
 
   try {
     [entries, score, dueEntries, pattern, weekActivity] = await Promise.all([
-      getEntries(),
-      getWeeklyScore(),
-      getSpacedRepetitionEntries(),
-      getLatestDailyPattern(),
-      getWeekActivity(),
+      getEntries(userId),
+      getWeeklyScore(userId),
+      getSpacedRepetitionEntries(userId),
+      getLatestDailyPattern(userId),
+      getWeekActivity(userId),
     ]);
   } catch (e) {
     error = e instanceof Error ? e.message : "Failed to load dashboard data";

@@ -30,11 +30,12 @@ function getAdminClient() {
   return createClient(url, key);
 }
 
-export async function getEntries(bucket?: string): Promise<CognitiveEntry[]> {
+export async function getEntries(userId: string, bucket?: string): Promise<CognitiveEntry[]> {
   const supabase = getAdminClient();
   let query = supabase
     .from("cognitive_entries")
     .select("*")
+    .eq("user_id", userId)
     .order("created_at", { ascending: false });
 
   if (bucket) query = query.eq("bucket", bucket);
@@ -44,11 +45,12 @@ export async function getEntries(bucket?: string): Promise<CognitiveEntry[]> {
   return (data ?? []) as CognitiveEntry[];
 }
 
-export async function getBuckets(): Promise<Bucket[]> {
+export async function getBuckets(userId: string): Promise<Bucket[]> {
   const supabase = getAdminClient();
   const { data, error } = await supabase
     .from("buckets")
     .select("id, name, entry_count")
+    .eq("user_id", userId)
     .order("entry_count", { ascending: false });
   if (error) throw error;
   return (data ?? []) as Bucket[];

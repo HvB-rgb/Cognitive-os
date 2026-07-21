@@ -1,4 +1,6 @@
+import { redirect } from "next/navigation";
 import { getGraphData, type GraphData } from "@/lib/graph";
+import { getSessionUserId } from "@/lib/session";
 import GraphView from "@/components/GraphView";
 import HamburgerLogout from "@/components/HamburgerLogout";
 import styles from "./graph.module.css";
@@ -6,11 +8,14 @@ import styles from "./graph.module.css";
 export const dynamic = "force-dynamic";
 
 export default async function GraphPage() {
+  const userId = await getSessionUserId();
+  if (!userId) redirect("/login");
+
   let data: GraphData = { nodes: [], links: [] };
   let error: string | null = null;
 
   try {
-    data = await getGraphData();
+    data = await getGraphData(userId);
   } catch (e) {
     error = e instanceof Error ? e.message : "Failed to load graph";
   }

@@ -35,11 +35,12 @@ export default function CapturePage() {
     setFirstName(localStorage.getItem("first_name") ?? "");
   }, [router]);
 
-  function logout() {
+  async function logout() {
     localStorage.removeItem("dashboard_token");
     localStorage.removeItem("user_id");
     localStorage.removeItem("username");
     localStorage.removeItem("first_name");
+    await fetch("/api/session", { method: "DELETE" });
     router.push("/login");
   }
 

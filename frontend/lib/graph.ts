@@ -49,20 +49,22 @@ function extractKeywords(texts: string[]): Set<string> {
   return words;
 }
 
-export async function getGraphData(): Promise<GraphData> {
+export async function getGraphData(userId: string): Promise<GraphData> {
   const supabase = getAdminClient();
 
   const [bucketsRes, entriesRes, patternsRes] = await Promise.all([
-    supabase.from("buckets").select("id, name, entry_count"),
+    supabase.from("buckets").select("id, name, entry_count").eq("user_id", userId),
     supabase
       .from("cognitive_entries")
       .select("id, title, bucket, cognitive_mode, summary, key_points, actionability_score")
+      .eq("user_id", userId)
       .eq("processing_status", "completed")
       .order("created_at", { ascending: false })
       .limit(80),
     supabase
       .from("daily_patterns")
       .select("cross_topic_data")
+      .eq("user_id", userId)
       .order("date", { ascending: false })
       .limit(1),
   ]);

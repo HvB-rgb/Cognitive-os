@@ -59,6 +59,13 @@ export default function SignupPage() {
       localStorage.setItem("user_id", data.id);
       localStorage.setItem("username", data.username);
       localStorage.setItem("first_name", form.firstName);
+      // Server Components (dashboard/review/graph) can't read localStorage —
+      // this httpOnly cookie is what lets them resolve who's actually asking.
+      await fetch("/api/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dashboard_token: data.dashboard_token }),
+      });
       setUsername(data.username);
     } catch {
       setError("Couldn't reach the server. Is the backend running?");
