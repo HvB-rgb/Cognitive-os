@@ -101,18 +101,17 @@ export default async function DashboardPage() {
 
   return (
     <div className={styles.page}>
-    <div className={styles.wrap}>
-      <div className={styles.topbar}>
-        <span className={styles.word}>COGNITIVE OS</span>
-        <div className={styles.search}>Search entries…</div>
-        <div className={styles.navpills}>
-          <a href="/capture">Capture</a>
-          <span className={styles.active}>Dashboard</span>
-          <a href="/graph">Graph</a>
-          <a href="/review">Review</a>
-        </div>
+    <div className={styles.topbar}>
+      <img className={styles.logo} src="/logo.png" alt="" />
+      <span className={styles.word}>Cognitive OS</span>
+      <div className={styles.navbtns}>
+        <a href="/capture">Capture</a>
+        <a className={styles.active}>Dashboard</a>
+        <a href="/graph">Graph</a>
+        <a href="/review">Review</a>
       </div>
-
+    </div>
+    <div className={styles.wrap}>
       {error ? (
         <div className={styles.errbox}>{error}</div>
       ) : (

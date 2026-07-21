@@ -79,7 +79,7 @@ export default function LoginPage() {
           <div className="card">
             <img className="mark" src="/logo.png" alt="" />
             <h1>Sign in</h1>
-            <p className="sub">Enter your unique ID nothing else....</p>
+            <p className="sub">Enter your unique ID nothing else...</p>
             <form onSubmit={handleSubmit}>
               <label>
                 Your ID
