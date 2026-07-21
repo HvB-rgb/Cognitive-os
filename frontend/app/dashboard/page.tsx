@@ -148,7 +148,7 @@ export default async function DashboardPage() {
                 <a href="/capture">
                   <b>[+]</b>New capture
                 </a>
-                <a href="#recent">
+                <a href="/entries">
                   <b>[↗]</b>All entries
                 </a>
                 <a href="/graph">
