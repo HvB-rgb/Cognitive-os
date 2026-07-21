@@ -3,8 +3,11 @@ from typing import Literal, Optional
 from datetime import date
 
 class IngestTextRequest(BaseModel):
-    user_id: str
-    payload_type: Literal["text", "url"]
+    # user_id is ignored server-side (the owner is derived from the
+    # X-Dashboard-Token header) — optional so lightweight clients like the
+    # iOS Share shortcut only need to send payload_type + raw_content.
+    user_id: Optional[str] = None
+    payload_type: Literal["text", "url"] = "url"
     raw_content: str
 
     @field_validator("raw_content")

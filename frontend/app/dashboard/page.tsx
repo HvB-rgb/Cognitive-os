@@ -179,6 +179,9 @@ export default async function DashboardPage({
                 <a href="/digest">
                   <b>[↗]</b>Weekly digest
                 </a>
+                <a href="/connect">
+                  <b>[↗]</b>Save from iPhone
+                </a>
               </div>
             </div>
 

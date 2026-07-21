@@ -1,0 +1,210 @@
+.page {
+  min-height: 100vh;
+  font-family: "Inter", system-ui, sans-serif;
+  background: #f5f1e8;
+  color: #1c1c20;
+}
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 16px 32px;
+  border-bottom: 1px solid #e2dbc7;
+  background: #faf8f2;
+}
+.logo {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+.word {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  margin-right: auto;
+  padding-left: 8px;
+}
+.navbtns {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.navbtns a {
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #8a8474;
+  text-decoration: none;
+}
+.hamb {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid #e2dbc7;
+  color: #1c1c20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  margin-left: 8px;
+  cursor: pointer;
+}
+
+.wrap {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 56px 24px 80px;
+}
+.back {
+  display: inline-block;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  color: #7a7568;
+  text-decoration: none;
+  margin-bottom: 18px;
+}
+.back:hover {
+  color: #1c1c20;
+}
+.h1 {
+  font-family: "Newsreader", serif;
+  font-weight: 500;
+  font-size: 30px;
+  letter-spacing: -0.01em;
+  margin: 0 0 6px;
+}
+.sub {
+  font-size: 14px;
+  color: #7a7568;
+  margin: 0 0 32px;
+  line-height: 1.6;
+}
+
+.card {
+  background: #faf8f2;
+  border: 1px solid #e2dbc7;
+  border-radius: 10px;
+  padding: 22px 24px;
+  margin-bottom: 18px;
+}
+.lbl {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #8a8474;
+  margin: 0 0 12px;
+}
+
+.tokenRow {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+.token {
+  flex: 1;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 13px;
+  background: #f5f1e8;
+  border: 1px solid #e2dbc7;
+  border-radius: 6px;
+  padding: 12px 14px;
+  color: #1c1c20;
+  word-break: break-all;
+  display: flex;
+  align-items: center;
+}
+.copyBtn {
+  flex-shrink: 0;
+  background: #2f6fed;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0 18px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+}
+.copyBtn.copied {
+  background: #2f9e6f;
+}
+.note {
+  font-size: 12px;
+  color: #9a9482;
+  margin: 10px 0 0;
+  line-height: 1.5;
+}
+
+.steps {
+  counter-reset: step;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.steps li {
+  counter-increment: step;
+  position: relative;
+  padding: 0 0 18px 40px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #3a352c;
+}
+.steps li:last-child {
+  padding-bottom: 0;
+}
+.steps li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #1c1c20;
+  color: #fff;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.kv {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12.5px;
+  background: #f0ece0;
+  border-radius: 4px;
+  padding: 1px 6px;
+  color: #5b564a;
+  word-break: break-all;
+}
+.field {
+  margin-top: 8px;
+  padding: 10px 12px;
+  background: #f5f1e8;
+  border: 1px dashed #cfc6ab;
+  border-radius: 6px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  color: #5b564a;
+  line-height: 1.7;
+}
+.field b {
+  color: #1c1c20;
+}
+.usage {
+  font-size: 14px;
+  line-height: 1.65;
+  color: #3a352c;
+  margin: 0;
+}
+.usage b {
+  color: #1c1c20;
+}
