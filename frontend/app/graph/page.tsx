@@ -1,5 +1,7 @@
 import { getGraphData, type GraphData } from "@/lib/graph";
 import GraphView from "@/components/GraphView";
+import HamburgerLogout from "@/components/HamburgerLogout";
+import styles from "./graph.module.css";
 
 export const dynamic = "force-dynamic";
 
@@ -13,35 +15,36 @@ export default async function GraphPage() {
     error = e instanceof Error ? e.message : "Failed to load graph";
   }
 
+  const bucketCount = data.nodes.filter((n) => n.type === "bucket").length;
+  const entryCount = data.nodes.filter((n) => n.type === "entry").length;
+
   return (
-    <div className="flex flex-col h-screen px-4 py-6">
-      <div className="flex items-center justify-between mb-4 shrink-0">
-        <div>
-          <h1 className="text-xl font-semibold tracking-tight">Knowledge Graph</h1>
-          <p className="text-muted text-xs mt-0.5">
-            {data.nodes.filter((n) => n.type === "bucket").length} buckets ·{" "}
-            {data.nodes.filter((n) => n.type === "entry").length} entries ·{" "}
-            {data.links.filter((l) => l.type === "cross-topic").length} cross-topic ·{" "}
-            {data.links.filter((l) => l.type === "shared-concept").length} shared-concept links
-          </p>
+    <div className={styles.page}>
+      <div className={styles.topbar}>
+        <img className={styles.logo} src="/logo.png" alt="" />
+        <span className={styles.word}>Cognitive OS</span>
+        <div className={styles.navbtns}>
+          <a href="/capture">Capture</a>
+          <a href="/dashboard">Dashboard</a>
+          <a className={styles.active}>Graph</a>
+          <a href="/review">Review</a>
+          <HamburgerLogout className={styles.hamb} />
         </div>
-        <nav className="flex gap-4 text-sm text-muted">
-          <a href="/dashboard" className="hover:text-white transition-colors">Entries</a>
-          <a href="/insight" className="hover:text-white transition-colors">Insight</a>
-          <a href="/review" className="hover:text-white transition-colors">Review</a>
-        </nav>
       </div>
 
-      {error ? (
-        <div className="rounded-lg border border-red-900/50 bg-red-950/20 px-4 py-3 text-sm text-red-400">
-          {error}
-        </div>
-      ) : (
-        <div className="flex-1 min-h-0">
+      <div className={styles.wrap}>
+        <h1 className={styles.h1}>Knowledge Graph</h1>
+        <p className={styles.gs}>
+          {bucketCount} {bucketCount === 1 ? "bucket" : "buckets"} · {entryCount}{" "}
+          {entryCount === 1 ? "entry" : "entries"}
+        </p>
+
+        {error && <div className={styles.errbox}>{error}</div>}
+
+        <div className={styles.canvasHolder}>
           <GraphView data={data} />
         </div>
-      )}
-
+      </div>
     </div>
   );
 }
