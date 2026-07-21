@@ -1,5 +1,7 @@
 import { getSpacedRepetitionEntries, type SpacedEntry } from "@/lib/analyser";
 import ReviewCard from "@/components/ReviewCard";
+import HamburgerLogout from "@/components/HamburgerLogout";
+import styles from "./review.module.css";
 
 export const dynamic = "force-dynamic";
 
@@ -23,48 +25,84 @@ export default async function ReviewPage() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto px-4 py-10">
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold tracking-tight mb-1">Review Queue</h1>
-        <p className="text-muted text-sm">
-          {entries.length > 0
-            ? `${entries.length} entries due for review — spaced repetition keeps ideas alive`
-            : "No entries due for review right now"}
-        </p>
+    <div className={styles.page}>
+      <div className={styles.topbar}>
+        <img className={styles.logo} src="/logo.png" alt="" />
+        <span className={styles.word}>Cognitive OS</span>
+        <div className={styles.navbtns}>
+          <a href="/capture">Capture</a>
+          <a href="/dashboard">Dashboard</a>
+          <a href="/graph">Graph</a>
+          <a className={styles.active}>Review</a>
+          <HamburgerLogout className={styles.hamb} />
+        </div>
       </div>
 
-      {error && (
-        <div className="rounded-lg border border-red-900/50 bg-red-950/20 px-4 py-3 text-sm text-red-400 mb-6">
-          {error}
-        </div>
-      )}
+      <div className={styles.pageBg}>
+        <img
+          className={`${styles.floatMark} ${styles.fmL1}`}
+          src="/logo.png"
+          alt=""
+          style={{ "--end-op": 0.14 } as React.CSSProperties}
+        />
+        <img
+          className={`${styles.floatMark} ${styles.fmL2}`}
+          src="/logo.png"
+          alt=""
+          style={{ "--end-op": 0.22 } as React.CSSProperties}
+        />
+        <img
+          className={`${styles.floatMark} ${styles.fmR1}`}
+          src="/logo.png"
+          alt=""
+          style={{ "--end-op": 0.14 } as React.CSSProperties}
+        />
+        <img
+          className={`${styles.floatMark} ${styles.fmR2}`}
+          src="/logo.png"
+          alt=""
+          style={{ "--end-op": 0.2 } as React.CSSProperties}
+        />
 
-      {entries.length === 0 && !error && (
-        <div className="text-center py-20 text-muted text-sm">
-          Check back after you have entries that are 7, 14, or 30 days old.
-        </div>
-      )}
+        <div className={styles.wrap}>
+          <h1 className={styles.h1}>Review Queue</h1>
+          <p className={styles.sub}>
+            {entries.length > 0
+              ? `${entries.length} ${entries.length === 1 ? "entry" : "entries"} due for review — spaced repetition keeps ideas alive`
+              : "No entries due for review right now"}
+          </p>
 
-      {([7, 14, 30] as const).map((interval) => {
-        const group = byInterval[interval];
-        if (!group.length) return null;
-        return (
-          <section key={interval} className="mb-8">
-            <p className="text-xs font-medium text-muted uppercase tracking-widest mb-3">
-              {labels[interval]} — {group.length} {group.length === 1 ? "entry" : "entries"}
-            </p>
-            <div className="flex flex-col gap-3">
-              {group.map((entry) => (
-                <ReviewCard key={entry.id} entry={entry} />
-              ))}
+          {error && <div className={styles.errbox}>{error}</div>}
+
+          {entries.length === 0 && !error && (
+            <div className={styles.empty}>
+              Check back after you have entries that are 7, 14, or 30 days old.
             </div>
-          </section>
-        );
-      })}
+          )}
 
-      <div className="flex gap-4 mt-2 text-xs text-muted">
-        <a href="/dashboard" className="hover:text-white transition-colors">← Entries</a>
-        <a href="/insight" className="hover:text-white transition-colors">Insight →</a>
+          {([7, 14, 30] as const).map((interval) => {
+            const group = byInterval[interval];
+            if (!group.length) return null;
+            return (
+              <section key={interval} className={styles.group}>
+                <div className={styles.glabel}>
+                  <span>{labels[interval]}</span>
+                  <span>
+                    {group.length} {group.length === 1 ? "entry" : "entries"}
+                  </span>
+                </div>
+                {group.map((entry) => (
+                  <ReviewCard key={entry.id} entry={entry} />
+                ))}
+              </section>
+            );
+          })}
+
+          <div className={styles.footNav}>
+            <a href="/dashboard">← Dashboard</a>
+            <a href="/graph">Graph →</a>
+          </div>
+        </div>
       </div>
     </div>
   );

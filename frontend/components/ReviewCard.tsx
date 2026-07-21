@@ -3,10 +3,10 @@
 import { useState } from "react";
 import type { SpacedEntry } from "@/lib/analyser";
 
-const MODE_COLORS: Record<string, string> = {
-  learn: "text-blue-400 bg-blue-400/10",
-  think: "text-purple-400 bg-purple-400/10",
-  reflect: "text-amber-400 bg-amber-400/10",
+const MODE_LABELS: Record<string, string> = {
+  learn: "Learn",
+  think: "Think",
+  reflect: "Reflect",
 };
 
 export default function ReviewCard({ entry }: { entry: SpacedEntry }) {
@@ -23,55 +23,108 @@ export default function ReviewCard({ entry }: { entry: SpacedEntry }) {
     }
   }
 
-  if (done) {
-    return (
-      <div className="rounded-xl border border-border bg-card px-5 py-4 opacity-40">
-        <p className="text-sm text-muted line-through">{entry.title}</p>
-        <p className="text-xs text-muted mt-1">Marked as reviewed</p>
-      </div>
-    );
-  }
-
   return (
-    <article className="rounded-xl border border-border bg-card p-5">
-      <div className="flex items-start justify-between gap-4 mb-3">
-        <div className="flex items-center gap-2">
-          <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${MODE_COLORS[entry.cognitive_mode] ?? "text-muted bg-border"}`}>
-            {entry.cognitive_mode}
+    <div className={`rcard ${done ? "done" : ""}`}>
+      <div>
+        <div className="tags">
+          <span className={`tag ${entry.cognitive_mode}`}>
+            {MODE_LABELS[entry.cognitive_mode] ?? entry.cognitive_mode}
           </span>
-          <span className="text-xs text-muted bg-border px-2 py-0.5 rounded-full">{entry.bucket}</span>
+          <span className="tag bucket">{entry.bucket}</span>
         </div>
-        <span className="text-xs text-muted font-mono shrink-0">
-          {new Date(entry.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+        <p className={`rtitle ${done ? "struck" : ""}`}>{entry.title}</p>
+        <span className="rmeta">
+          {done
+            ? "Marked as reviewed"
+            : `Reviewed ${entry.resurfaced_count ?? 0} ${entry.resurfaced_count === 1 ? "time" : "times"}`}
         </span>
       </div>
-
-      <h2 className="text-base font-medium mb-2">{entry.title}</h2>
-      <p className="text-sm text-muted leading-relaxed mb-4">{entry.summary}</p>
-
-      {entry.key_points?.length > 0 && (
-        <ul className="mb-4 space-y-1">
-          {entry.key_points.map((pt, i) => (
-            <li key={i} className="text-sm text-muted flex gap-2">
-              <span className="text-accent">·</span>
-              <span>{pt}</span>
-            </li>
-          ))}
-        </ul>
-      )}
-
-      <div className="flex items-center justify-between">
-        <span className="text-xs text-muted">
-          Reviewed {entry.resurfaced_count ?? 0} {entry.resurfaced_count === 1 ? "time" : "times"}
-        </span>
-        <button
-          onClick={handleMark}
-          disabled={loading}
-          className="text-xs font-medium px-3 py-1.5 rounded-lg bg-accent/15 text-accent hover:bg-accent/25 transition-colors disabled:opacity-50"
-        >
+      {!done && (
+        <button className="markbtn" onClick={handleMark} disabled={loading}>
           {loading ? "Saving…" : "Mark as reviewed"}
         </button>
-      </div>
-    </article>
+      )}
+
+      <style jsx>{`
+        .rcard {
+          background: #faf8f2;
+          border: 1px solid #e2dbc7;
+          border-radius: 10px;
+          padding: 18px 20px;
+          margin-bottom: 12px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 16px;
+        }
+        .rcard.done {
+          opacity: 0.5;
+        }
+        .tags {
+          display: flex;
+          gap: 8px;
+          margin-bottom: 8px;
+        }
+        .tag {
+          font-family: "JetBrains Mono", monospace;
+          font-size: 10.5px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+          border-radius: 999px;
+          padding: 3px 10px;
+        }
+        .tag.learn {
+          background: #e7f0ff;
+          color: #2563eb;
+        }
+        .tag.think {
+          background: #eee9fe;
+          color: #7c3aed;
+        }
+        .tag.reflect {
+          background: #fdf1d8;
+          color: #a3690a;
+        }
+        .tag.bucket {
+          background: #f0ece0;
+          color: #5b564a;
+          font-weight: 500;
+          text-transform: none;
+          letter-spacing: 0;
+        }
+        .rtitle {
+          font-size: 15px;
+          font-weight: 600;
+          margin: 0 0 6px;
+          color: #1c1c20;
+        }
+        .rtitle.struck {
+          text-decoration: line-through;
+          color: #8a8474;
+          font-weight: 500;
+        }
+        .rmeta {
+          font-size: 12px;
+          color: #9a9482;
+        }
+        .markbtn {
+          background: #eef3fe;
+          color: #2f6fed;
+          border: none;
+          padding: 9px 16px;
+          border-radius: 8px;
+          font-size: 12.5px;
+          font-weight: 600;
+          cursor: pointer;
+          font-family: inherit;
+          flex-shrink: 0;
+        }
+        .markbtn:disabled {
+          opacity: 0.5;
+          cursor: default;
+        }
+      `}</style>
+    </div>
   );
 }
