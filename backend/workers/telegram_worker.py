@@ -18,6 +18,17 @@ dp = Dispatcher(storage=MemoryStorage())
 
 API_BASE = settings.backend_url
 
+
+async def _dashboard_token_for(telegram_id: str) -> str | None:
+    """The /api/process endpoints now authenticate via X-Dashboard-Token
+    (so a web client can't spoof another user's id). The bot resolves the
+    Telegram user's own token to send with each capture request."""
+    user = await database.get_or_create_user(telegram_id)
+    if not user:
+        return None
+    return await database.get_or_create_dashboard_token(user["id"])
+
+
 # Session tracking — resets if the bot restarts
 authenticated_sessions: dict[str, float] = {}
 failed_attempts: dict[str, int] = {}
@@ -307,9 +318,11 @@ async def handle_text(message: Message):
     thinking = await message.answer("⏳ Processing your thought...")
 
     try:
+        token = await _dashboard_token_for(user_id)
         async with httpx.AsyncClient() as client:
             response = await client.post(
                 f"{API_BASE}/api/process/text",
+                headers={"X-Dashboard-Token": token or ""},
                 json={
                     "user_id": user_id,
                     "payload_type": "url" if raw_content.startswith("http") else "text",
@@ -374,9 +387,11 @@ async def handle_voice(message: Message):
 
         await thinking.edit_text("⏳ Transcribing...")
 
+        token = await _dashboard_token_for(user_id)
         async with httpx.AsyncClient() as client:
             response = await client.post(
                 f"{API_BASE}/api/process/voice",
+                headers={"X-Dashboard-Token": token or ""},
                 data={"user_id": user_id},
                 files={"audio_file": ("voice.ogg", file_bytes, "audio/ogg")},
                 timeout=60.0,
@@ -426,9 +441,11 @@ async def handle_document(message: Message):
         file_bytes = await bot.download_file(file.file_path)
         await thinking.edit_text("⏳ Transcribing audio...")
 
+        token = await _dashboard_token_for(user_id)
         async with httpx.AsyncClient() as client:
             response = await client.post(
                 f"{API_BASE}/api/process/voice",
+                headers={"X-Dashboard-Token": token or ""},
                 data={"user_id": user_id},
                 files={"audio_file": (doc.file_name, file_bytes, doc.mime_type)},
                 timeout=60.0,

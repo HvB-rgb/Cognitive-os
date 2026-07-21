@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Depends
 from backend.models.schemas import IngestTextRequest, IngestResponse
 from backend.config import get_settings, Settings
+from backend.dependencies import get_current_user
 from backend.services.media_router import route_payload
 from backend.services.extractor import extract_url
 from backend.services.ai_engine import process_with_ai
@@ -14,21 +15,18 @@ router = APIRouter(prefix="/api/process", tags=["ingestion"])
 @router.post("/text", response_model=IngestResponse)
 async def process_text(
     payload: IngestTextRequest,
+    current_user: dict = Depends(get_current_user),
     settings: Settings = Depends(get_settings),
 ):
     try:
-        # Step 1 — Get or create user in DB
-        #user = await database.get_or_create_user(payload.user_id)
-        #db_user_id = user["id"] if user else None
-        db_user_id = None
-        try:
-            user = await database.resolve_user(payload.user_id)
-            db_user_id = user["id"] if user else None
-        except Exception as db_err:
-            print(f"🚨🚨🚨 [DEGRADED MODE] Database unreachable — entries NOT being saved! {db_err}")
+        # The signed-in user is resolved from the X-Dashboard-Token header,
+        # NOT the user_id in the body — otherwise any client could write into
+        # someone else's account by sending their id. payload.user_id is
+        # ignored (kept in the schema only for backward compatibility).
+        db_user_id = current_user["id"]
         routed = route_payload(payload.payload_type, payload.raw_content)
         content = routed["cleaned_content"]
-        source_url = content if routed["route"] == "url" else None
+        source_url = content if routed["route"] == "link" else None
 
         # Step 3 — Extract if URL
         if routed.get("needs_extraction"):
@@ -83,8 +81,9 @@ async def process_text(
 
 @router.post("/voice", response_model=IngestResponse)
 async def process_voice(
-    user_id: str = Form(...),
     audio_file: UploadFile = File(...),
+    user_id: str = Form(None),
+    current_user: dict = Depends(get_current_user),
     settings: Settings = Depends(get_settings),
 ):
     allowed_types = {"audio/ogg", "audio/mpeg", "audio/mp3", "audio/wav", "audio/webm", "audio/mp4", "audio/x-m4a"}
@@ -98,8 +97,8 @@ async def process_voice(
     try:
         from backend.services.transcriber import transcribe_audio
 
-        user = await database.resolve_user(user_id)
-        db_user_id = user["id"] if user else None
+        # Owner comes from the token, not the form field (see /text above).
+        db_user_id = current_user["id"]
 
         transcript = await transcribe_audio(audio_bytes)
         existing_buckets = await database.get_user_buckets(db_user_id) if db_user_id else []

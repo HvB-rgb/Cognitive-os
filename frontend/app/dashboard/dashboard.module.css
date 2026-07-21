@@ -114,6 +114,37 @@
   background: #1c1c20;
   color: #fff;
 }
+.rangeSelect {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  cursor: pointer;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding-right: 26px;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'><path d='M2 3.5L5 6.5L8 3.5' stroke='white' fill='none' stroke-width='1.3'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+}
+.rangeSelect option {
+  color: #1c1c20;
+  background: #faf8f2;
+}
+.hamb {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid #e2dbc7;
+  color: #1c1c20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  margin-left: 8px;
+  cursor: pointer;
+}
 .grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

@@ -135,16 +135,16 @@ export type WeekActivityEntry = {
 /** Raw last-7-days entries (bucket/score/timestamp only) — the overview
  * dashboard derives "active buckets this week", the capture heatmap, and
  * the actionability dot-chart from this single query instead of three. */
-export async function getWeekActivity(userId: string): Promise<WeekActivityEntry[]> {
+export async function getWeekActivity(userId: string, sinceDays = 7): Promise<WeekActivityEntry[]> {
   const supabase = getAdminClient();
-  const weekAgo = new Date();
-  weekAgo.setDate(weekAgo.getDate() - 7);
+  const since = new Date();
+  since.setDate(since.getDate() - sinceDays);
 
   const { data } = await supabase
     .from("cognitive_entries")
     .select("bucket, actionability_score, created_at")
     .eq("user_id", userId)
-    .gte("created_at", weekAgo.toISOString())
+    .gte("created_at", since.toISOString())
     .eq("processing_status", "completed");
 
   return (data ?? []) as WeekActivityEntry[];

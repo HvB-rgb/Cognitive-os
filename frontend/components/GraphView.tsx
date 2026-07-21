@@ -643,7 +643,7 @@ export default function GraphView({ data }: { data: GraphData }) {
                   border: `1px solid ${hexA(bucketColorOf(focusedBucket), 0.35)}`,
                   color: bucketColorOf(focusedBucket),
                 }}
-                onClick={() => router.push("/dashboard")}
+                onClick={() => router.push(`/entries?bucket=${encodeURIComponent(focusedBucket)}`)}
               >
                 Open {focusedBucket} feed →
               </button>
@@ -709,7 +709,10 @@ export default function GraphView({ data }: { data: GraphData }) {
               )}
             </div>
             <div className={styles.pfoot}>
-              <button style={{ background: "#f0ece0", color: "#5b564a" }} onClick={() => router.push("/dashboard")}>
+              <button
+                style={{ background: "#f0ece0", color: "#5b564a" }}
+                onClick={() => router.push(`/entries?bucket=${encodeURIComponent(selectedEntry.bucket ?? "")}`)}
+              >
                 Go to {selectedEntry.bucket} bucket →
               </button>
             </div>

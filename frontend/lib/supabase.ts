@@ -45,6 +45,21 @@ export async function getEntries(userId: string, bucket?: string): Promise<Cogni
   return (data ?? []) as CognitiveEntry[];
 }
 
+/** Single entry for the detail view. Scoped by user_id so one user can't
+ * open another user's entry by guessing its UUID. Returns null if the id
+ * doesn't exist or isn't theirs. */
+export async function getEntry(userId: string, id: string): Promise<CognitiveEntry | null> {
+  const supabase = getAdminClient();
+  const { data, error } = await supabase
+    .from("cognitive_entries")
+    .select("*")
+    .eq("user_id", userId)
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw error;
+  return (data as CognitiveEntry | null) ?? null;
+}
+
 export async function getBuckets(userId: string): Promise<Bucket[]> {
   const supabase = getAdminClient();
   const { data, error } = await supabase

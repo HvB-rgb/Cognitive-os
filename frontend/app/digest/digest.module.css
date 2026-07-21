@@ -104,141 +104,138 @@
   background: #faf8f2;
   border: 1px solid #e2dbc7;
   border-radius: 10px;
-  padding: 20px;
-  margin-bottom: 14px;
+  padding: 24px;
+  margin-bottom: 16px;
 }
-.row {
-  display: flex;
-  align-items: center;
-  margin-bottom: 10px;
-}
-.tags {
-  display: flex;
-  gap: 8px;
-}
-.tag {
+.lbl {
   font-family: "JetBrains Mono", monospace;
   font-size: 10.5px;
-  font-weight: 600;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  border-radius: 999px;
-  padding: 3px 10px;
+  color: #8a8474;
+  margin: 0 0 16px;
 }
-.learn {
-  background: #e7f0ff;
-  color: #2563eb;
+.scoreTop {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 20px;
 }
-.think {
-  background: #eee9fe;
-  color: #7c3aed;
-}
-.reflect {
-  background: #fdf1d8;
-  color: #a3690a;
-}
-.bucket {
-  background: #f0ece0;
-  color: #5b564a;
-  font-weight: 500;
-  text-transform: none;
-  letter-spacing: 0;
-}
-.date {
-  margin-left: auto;
-  font-family: "JetBrains Mono", monospace;
-  font-size: 11px;
-  color: #9a9482;
-}
-.title {
+.scoreBig {
   font-family: "Newsreader", serif;
-  font-size: 17px;
-  font-weight: 500;
-  margin: 0 0 8px;
-  color: #1c1c20;
+  font-size: 44px;
+  line-height: 1;
 }
-.summary {
-  font-size: 13.5px;
+.scoreBig span {
+  font-family: "Inter", sans-serif;
+  font-size: 14px;
+  color: #8a8474;
+  margin-left: 6px;
+}
+.scoreMeta {
+  text-align: right;
+  font-size: 12.5px;
+  color: #7a7568;
   line-height: 1.6;
-  color: #5b564a;
-  margin: 0;
 }
-
-.cardLink {
-  display: block;
-  text-decoration: none;
-  color: inherit;
-  transition: border-color 150ms ease;
+.dims {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
 }
-.cardLink:hover .card {
-  border-color: #cbb8f0;
-}
-
-/* ── entry detail ── */
-.detailCard {
-  background: #faf8f2;
+.dim {
+  text-align: center;
   border: 1px solid #e2dbc7;
-  border-radius: 10px;
-  padding: 28px;
+  border-radius: 8px;
+  padding: 14px 8px;
 }
-.detailTitle {
+.dimVal {
   font-family: "Newsreader", serif;
   font-size: 26px;
-  font-weight: 500;
-  letter-spacing: -0.01em;
-  line-height: 1.25;
-  margin: 12px 0 20px;
-  color: #1c1c20;
 }
-.section {
-  margin-bottom: 22px;
-}
-.plabel {
+.dimName {
   font-family: "JetBrains Mono", monospace;
   font-size: 9.5px;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
   color: #8a8474;
-  margin: 0 0 6px;
+  margin-top: 4px;
 }
-.body {
-  font-size: 14px;
+.coach {
+  background: #eef3fe;
+  border-color: #cfe0fb;
+}
+.coach .lbl {
+  color: #2f6fed;
+}
+.coachText {
+  font-size: 14.5px;
   line-height: 1.65;
-  color: #5b564a;
+  color: #29408a;
   margin: 0;
 }
-.kp {
+.coachDate {
+  font-size: 11px;
+  color: #7a8bbd;
+  margin: 10px 0 0;
+  font-family: "JetBrains Mono", monospace;
+}
+.crossRow {
   display: flex;
+  align-items: center;
   gap: 8px;
-  font-size: 13.5px;
-  color: #5b564a;
-  margin-bottom: 7px;
-  line-height: 1.5;
+  flex-wrap: wrap;
+  padding: 10px 0;
+  border-top: 1px solid #ece6d5;
+  font-size: 13px;
 }
-.kpMark {
-  color: #2f6fed;
-  flex-shrink: 0;
+.crossRow:first-of-type {
+  border-top: none;
 }
-.tagpill {
-  display: inline-block;
-  font-size: 12px;
+.pill {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10.5px;
   background: #eef3fe;
   color: #2f6fed;
-  padding: 4px 12px;
+  padding: 3px 10px;
   border-radius: 999px;
 }
-.dots {
-  display: flex;
-  gap: 5px;
+.arrow {
+  color: #9a9482;
 }
-.dots i {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  display: block;
+.shared {
+  color: #7a7568;
+  font-size: 12.5px;
 }
-.sourceLink {
-  font-size: 13px;
-  color: #2f6fed;
-  word-break: break-all;
+.contra {
+  padding: 14px 0;
+  border-top: 1px solid #ece6d5;
+}
+.contra:first-of-type {
+  border-top: none;
+}
+.contraBucket {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  color: #a3690a;
+  letter-spacing: 0.04em;
+  margin: 0 0 6px;
+}
+.contraTitle {
+  font-size: 13.5px;
+  color: #1c1c20;
+  margin: 0;
+}
+.vs {
+  font-size: 11px;
+  color: #9a9482;
+  margin: 4px 0;
+}
+.warnCard {
+  background: #fdf6e6;
+  border-color: #f0dcae;
+}
+.warnCard .lbl {
+  color: #a3690a;
 }

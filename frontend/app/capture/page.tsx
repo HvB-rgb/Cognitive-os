@@ -53,7 +53,10 @@ export default function CapturePage() {
     try {
       const res = await fetch(`${BACKEND_URL}/api/process/text`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-Dashboard-Token": localStorage.getItem("dashboard_token") ?? "",
+        },
         body: JSON.stringify({
           user_id: userId,
           payload_type: text.trim().startsWith("http") ? "url" : "text",
@@ -88,6 +91,7 @@ export default function CapturePage() {
 
       const res = await fetch(`${BACKEND_URL}/api/process/voice`, {
         method: "POST",
+        headers: { "X-Dashboard-Token": localStorage.getItem("dashboard_token") ?? "" },
         body: form,
       });
       const data = await res.json();

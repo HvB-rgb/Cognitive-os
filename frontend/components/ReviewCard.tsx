@@ -12,12 +12,20 @@ const MODE_LABELS: Record<string, string> = {
 export default function ReviewCard({ entry }: { entry: SpacedEntry }) {
   const [done, setDone] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [failed, setFailed] = useState(false);
 
   async function handleMark() {
     setLoading(true);
+    setFailed(false);
     try {
-      await fetch(`/api/mark-resurfaced/${entry.id}`, { method: "POST" });
+      const res = await fetch(`/api/mark-resurfaced/${entry.id}`, { method: "POST" });
+      if (!res.ok) {
+        setFailed(true);
+        return;
+      }
       setDone(true);
+    } catch {
+      setFailed(true);
     } finally {
       setLoading(false);
     }
@@ -36,12 +44,14 @@ export default function ReviewCard({ entry }: { entry: SpacedEntry }) {
         <span className="rmeta">
           {done
             ? "Marked as reviewed"
-            : `Reviewed ${entry.resurfaced_count ?? 0} ${entry.resurfaced_count === 1 ? "time" : "times"}`}
+            : failed
+              ? "Couldn't save — try again"
+              : `Reviewed ${entry.resurfaced_count ?? 0} ${entry.resurfaced_count === 1 ? "time" : "times"}`}
         </span>
       </div>
       {!done && (
         <button className="markbtn" onClick={handleMark} disabled={loading}>
-          {loading ? "Saving…" : "Mark as reviewed"}
+          {loading ? "Saving…" : failed ? "Retry" : "Mark as reviewed"}
         </button>
       )}
 

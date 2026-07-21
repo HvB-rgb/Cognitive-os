@@ -189,7 +189,6 @@ export default function SignupPage() {
           >
             Get started
           </button>
-          <span className="hamb">☰</span>
         </div>
       </div>
 

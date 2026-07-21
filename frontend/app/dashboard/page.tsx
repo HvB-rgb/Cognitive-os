@@ -9,11 +9,21 @@ import {
 } from "@/lib/analyser";
 import { getSessionUserId } from "@/lib/session";
 import Greeting from "@/components/Greeting";
+import RangeFilter from "@/components/RangeFilter";
+import HamburgerLogout from "@/components/HamburgerLogout";
 import styles from "./dashboard.module.css";
 
 export const dynamic = "force-dynamic";
 
 const DAY_LABELS = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
+
+const RANGE_DAYS: Record<string, number> = { today: 1, week: 7, month: 30, all: 3650 };
+const RANGE_LABEL: Record<string, string> = {
+  today: "today",
+  week: "this week",
+  month: "this month",
+  all: "all time",
+};
 
 /** cognitive_entries.created_at -> 0=Mon..6=Sun (JS Date.getDay() is 0=Sun) */
 function dayIndex(dateStr: string): number {
@@ -27,9 +37,17 @@ function heatColor(count: number): string {
   return "#1c4ed8";
 }
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ range?: string }>;
+}) {
   const userId = await getSessionUserId();
   if (!userId) redirect("/login");
+
+  const { range: rangeParam } = await searchParams;
+  const range = rangeParam && RANGE_DAYS[rangeParam] ? rangeParam : "week";
+  const rangeDays = RANGE_DAYS[range];
 
   let error: string | null = null;
   let entries: Awaited<ReturnType<typeof getEntries>> = [];
@@ -44,16 +62,19 @@ export default async function DashboardPage() {
       getWeeklyScore(userId),
       getSpacedRepetitionEntries(userId),
       getLatestDailyPattern(userId),
-      getWeekActivity(userId),
+      getWeekActivity(userId, rangeDays),
     ]);
   } catch (e) {
     error = e instanceof Error ? e.message : "Failed to load dashboard data";
   }
 
   const totalEntries = entries.length;
-  const todayStr = new Date().toISOString().slice(0, 10);
-  const todayCount = entries.filter((e) => e.created_at.slice(0, 10) === todayStr).length;
-  const recentEntries = entries.slice(0, 4);
+  // Entries within the selected range drive the Recent Entries count + list.
+  const rangeCutoff = new Date();
+  rangeCutoff.setDate(rangeCutoff.getDate() - rangeDays);
+  const rangeEntries = entries.filter((e) => new Date(e.created_at) >= rangeCutoff);
+  const rangeCount = rangeEntries.length;
+  const recentEntries = rangeEntries.slice(0, 4);
 
   // Active buckets this week — real counts from getWeekActivity(), not the
   // all-time bucket.entry_count used elsewhere in the app.
@@ -114,6 +135,7 @@ export default async function DashboardPage() {
         <a className={styles.active}>Dashboard</a>
         <a href="/graph">Graph</a>
         <a href="/review">Review</a>
+        <HamburgerLogout className={styles.hamb} />
       </div>
     </div>
     <div className={styles.wrap}>
@@ -137,7 +159,7 @@ export default async function DashboardPage() {
               <div className={styles.chip}>
                 <b>{contradictionCount}</b>Contradictions
               </div>
-              <div className={`${styles.chip} ${styles.today}`}>Today ▾</div>
+              <RangeFilter value={range} className={`${styles.chip} ${styles.today} ${styles.rangeSelect}`} />
             </div>
           </div>
 
@@ -154,7 +176,7 @@ export default async function DashboardPage() {
                 <a href="/graph">
                   <b>[↗]</b>Knowledge graph
                 </a>
-                <a>
+                <a href="/digest">
                   <b>[↗]</b>Weekly digest
                 </a>
               </div>
@@ -164,11 +186,13 @@ export default async function DashboardPage() {
               <div className={styles.lbl}>
                 Recent Entries<span>{totalEntries} total</span>
               </div>
-              <div className={styles.bignum}>{String(todayCount).padStart(2, "0")}</div>
+              <div className={styles.bignum}>{String(Math.min(rangeCount, 99)).padStart(2, "0")}</div>
               <div className={styles.rows}>
-                {recentEntries.length === 0 && <p className={styles.empty}>No entries yet.</p>}
+                {recentEntries.length === 0 && (
+                  <p className={styles.empty}>No entries {RANGE_LABEL[range]}.</p>
+                )}
                 {recentEntries.map((e) => (
-                  <a key={e.id} href={`/dashboard?bucket=${encodeURIComponent(e.bucket)}#recent`}>
+                  <a key={e.id} href={`/entries/${e.id}`}>
                     {e.title}
                     <span className={styles.vw}>view ↗</span>
                   </a>
@@ -178,13 +202,15 @@ export default async function DashboardPage() {
 
             <div className={styles.cell}>
               <div className={styles.lbl}>
-                Active Buckets<span>this week</span>
+                Active Buckets<span>{RANGE_LABEL[range]}</span>
               </div>
-              <div className={styles.bignum}>{String(score?.distinctBuckets ?? 0).padStart(2, "0")}</div>
+              <div className={styles.bignum}>{String(weekBucketCounts.size).padStart(2, "0")}</div>
               <div className={`${styles.rows} ${styles.buckets}`}>
-                {topWeekBuckets.length === 0 && <p className={styles.empty}>No activity this week.</p>}
+                {topWeekBuckets.length === 0 && (
+                  <p className={styles.empty}>No activity {RANGE_LABEL[range]}.</p>
+                )}
                 {topWeekBuckets.map(([name, count]) => (
-                  <a key={name} href={`/dashboard?bucket=${encodeURIComponent(name)}#recent`}>
+                  <a key={name} href={`/entries?bucket=${encodeURIComponent(name)}`}>
                     {name}
                     <span className={styles.ct}>{count}</span>
                   </a>
@@ -259,7 +285,7 @@ export default async function DashboardPage() {
                 </span>
               </div>
               {topWeekBuckets.length === 0 ? (
-                <p className={styles.empty}>No activity this week.</p>
+                <p className={styles.empty}>No activity {RANGE_LABEL[range]}.</p>
               ) : (
                 <div className={styles.heat}>
                   {topWeekBuckets.map(([name]) => (
