@@ -61,8 +61,7 @@
 .hint {
   position: absolute;
   top: 14px;
-  left: 50%;
-  transform: translateX(-50%);
+  right: 14px;
   font-family: "JetBrains Mono", monospace;
   font-size: 11px;
   color: #8a8474;
