@@ -1,15 +1,19 @@
 import asyncio
 import httpx
 import re
+from html import unescape
+from urllib.parse import urlparse
 
 async def extract_url(url: str) -> str:
     """
-    Routes to YouTube, Instagram, or article extractor based on URL.
+    Routes to YouTube, Instagram, Twitter/X, or article extractor by URL.
     """
     if _is_youtube(url):
         return await _extract_youtube(url)
     if _is_instagram(url):
         return await _extract_instagram(url)
+    if _is_twitter(url):
+        return await _extract_twitter(url)
     return await _extract_article(url)
 
 
@@ -26,6 +30,20 @@ def _is_instagram(url: str) -> bool:
         "instagram.com/reel/",
         "instagram.com/reels/",
     ])
+
+
+def _is_twitter(url: str) -> bool:
+    """Matches a single tweet on twitter.com or x.com. Hostname is parsed
+    (not substring-matched) so lookalikes like netflix.com don't trip the
+    'x.com' check."""
+    try:
+        host = (urlparse(url).hostname or "").lower()
+    except Exception:
+        return False
+    for prefix in ("www.", "mobile."):
+        if host.startswith(prefix):
+            host = host[len(prefix):]
+    return host in ("twitter.com", "x.com") and "/status/" in url
 
 
 async def _extract_youtube(url: str) -> str:
@@ -104,6 +122,67 @@ async def _extract_instagram(url: str) -> str:
         "Caption:",
         description or "(none)",
     ]
+    if frame_descriptions:
+        sections += ["", "Visual content:"] + [f"- {d}" for d in frame_descriptions]
+    if transcript:
+        sections += ["", "Spoken audio:", transcript]
+
+    return "\n".join(sections).strip()[:4000]
+
+
+async def _extract_twitter(url: str) -> str:
+    """
+    Extract a tweet. Text comes from Twitter's public oEmbed endpoint
+    (no auth, works for public tweets); if the tweet carries a video, it's
+    additionally enriched with frame descriptions + an audio transcript via
+    yt-dlp — the same path used for Instagram Reels. Each source can fail
+    independently: a text-only tweet still yields the oEmbed text, and a
+    video tweet whose oEmbed is blocked still yields the yt-dlp side.
+    """
+    author = ""
+    text = ""
+
+    # 1. Tweet text via oEmbed (public, no auth)
+    try:
+        async with httpx.AsyncClient(timeout=15.0, headers={"User-Agent": "Mozilla/5.0"}) as client:
+            resp = await client.get(
+                "https://publish.twitter.com/oembed",
+                params={"url": url, "omit_script": "1", "dnt": "true"},
+                follow_redirects=True,
+            )
+            resp.raise_for_status()
+            data = resp.json()
+        author = data.get("author_name", "") or ""
+        html = data.get("html", "") or ""
+        text = re.sub(r"<[^>]+>", " ", html)
+        text = unescape(re.sub(r"\s+", " ", text).strip())
+    except Exception as e:
+        print(f"[Extractor] Twitter oEmbed failed: {e}")
+
+    # 2. Video enrichment via yt-dlp (no-op / expected failure for text tweets)
+    uploader = ""
+    yt_desc = ""
+    frame_descriptions: list[str] = []
+    transcript = ""
+    try:
+        import yt_dlp
+        ydl_opts = {"quiet": True, "skip_download": True, "extract_flat": False}
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url, download=False)
+        uploader = info.get("uploader", "") or info.get("uploader_id", "") or ""
+        yt_desc = (info.get("description") or "")[:2000]
+        video_url, audio_url = _pick_dash_urls(info.get("formats", []))
+        frame_descriptions, transcript = await asyncio.gather(
+            _describe_frames(video_url),
+            _transcribe_reel_audio(audio_url),
+        )
+    except Exception as e:
+        print(f"[Extractor] Twitter media extraction skipped (likely a text tweet): {e}")
+
+    if not (text or yt_desc or frame_descriptions or transcript):
+        return f"Tweet: {url}"
+
+    sections = [f"Tweet by {author or uploader or 'unknown'}", "", "Text:", text or yt_desc or "(none)"]
     if frame_descriptions:
         sections += ["", "Visual content:"] + [f"- {d}" for d in frame_descriptions]
     if transcript:
