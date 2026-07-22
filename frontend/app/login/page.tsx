@@ -370,6 +370,29 @@ export default function LoginPage() {
           color: #2f6fed;
           cursor: pointer;
         }
+        @media (max-width: 640px) {
+          .topbar {
+            flex-wrap: wrap;
+            padding: 12px 16px;
+            gap: 10px;
+          }
+          .wrap {
+            padding: 32px 18px;
+          }
+          .card-frame {
+            width: 100%;
+            max-width: 360px;
+          }
+          .card {
+            width: 100%;
+          }
+          .halo-wrap {
+            top: -28px;
+            left: -28px;
+            right: -28px;
+            bottom: -28px;
+          }
+        }
       `}</style>
     </>
   );

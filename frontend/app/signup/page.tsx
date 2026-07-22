@@ -801,6 +801,48 @@ export default function SignupPage() {
           object-fit: contain;
           transition: filter 0.1s linear;
         }
+        @media (max-width: 640px) {
+          .topbar {
+            flex-wrap: wrap;
+            padding: 12px 16px;
+            gap: 10px;
+          }
+          .hero {
+            padding: 56px 20px 40px;
+          }
+          .h1 {
+            font-size: 30px;
+          }
+          .hero-sub {
+            font-size: 15px;
+          }
+          :global(section.copy) {
+            padding: 40px 20px;
+          }
+          :global(.copy h2) {
+            font-size: 24px;
+          }
+          .features {
+            padding: 40px 20px;
+          }
+          .quote-block {
+            padding: 60px 20px;
+          }
+          .quote-inner p {
+            font-size: 21px;
+          }
+          .card {
+            width: 100%;
+            max-width: 400px;
+            padding: 28px 24px;
+          }
+          .power-badge {
+            right: 16px;
+            bottom: 16px;
+            width: 48px;
+            height: 48px;
+          }
+        }
       `}</style>
     </>
   );

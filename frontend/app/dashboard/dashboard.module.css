@@ -375,3 +375,61 @@
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
+
+/* ── mobile ── */
+@media (max-width: 640px) {
+  .topbar {
+    flex-wrap: wrap;
+    padding: 12px 16px;
+    gap: 10px 6px;
+  }
+  .word {
+    padding-left: 6px;
+  }
+  .navbtns {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    font-size: 12px;
+    letter-spacing: 0.03em;
+    gap: 6px;
+  }
+  .navbtns a {
+    padding: 7px 12px;
+  }
+  .hamb {
+    margin-left: auto;
+  }
+}
+
+@media (max-width: 760px) {
+  .wrap {
+    padding: 20px 16px 48px;
+  }
+  .h1 {
+    font-size: 30px;
+  }
+  .hrow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .chips {
+    flex-wrap: wrap;
+  }
+  .grid,
+  .grid2 {
+    grid-template-columns: 1fr;
+  }
+  .cell {
+    border-right: none;
+    border-bottom: 1px dashed #e2dbc7;
+  }
+  .grid > .cell:last-child,
+  .grid2 > .cell:last-child {
+    border-bottom: none;
+  }
+  .bignum {
+    text-align: left;
+  }
+}

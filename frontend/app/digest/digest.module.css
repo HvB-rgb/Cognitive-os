@@ -239,3 +239,29 @@
 .warnCard .lbl {
   color: #a3690a;
 }
+
+/* ── mobile ── */
+@media (max-width: 640px) {
+  .topbar {
+    flex-wrap: wrap;
+    padding: 12px 16px;
+    gap: 10px 6px;
+  }
+  .word {
+    padding-left: 6px;
+  }
+  .navbtns {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    font-size: 12px;
+    letter-spacing: 0.03em;
+    gap: 6px;
+  }
+  .navbtns a {
+    padding: 7px 12px;
+  }
+  .hamb {
+    margin-left: auto;
+  }
+}

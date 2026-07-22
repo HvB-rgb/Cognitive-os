@@ -404,6 +404,32 @@ export default function CapturePage() {
           color: #5b564a;
           line-height: 1.7;
         }
+        @media (max-width: 640px) {
+          .topbar {
+            flex-wrap: wrap;
+            padding: 12px 16px;
+            gap: 10px 6px;
+          }
+          .wordmark {
+            padding-left: 6px;
+          }
+          .navbtns {
+            width: 100%;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+            font-size: 12px;
+            gap: 6px;
+          }
+          .navbtns a {
+            padding: 7px 12px;
+          }
+          .hamb {
+            margin-left: auto;
+          }
+          .wrap {
+            padding: 40px 16px 60px;
+          }
+        }
       `}</style>
     </>
   );
